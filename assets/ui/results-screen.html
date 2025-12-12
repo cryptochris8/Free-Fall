@@ -1,0 +1,305 @@
+<!--
+  Results Screen SceneUI Template
+
+  Displays game results after completing a game.
+  Shows: score, grade, accuracy, streak, improvements
+-->
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .results-panel {
+    background: linear-gradient(135deg, rgba(15, 15, 35, 0.98) 0%, rgba(25, 25, 55, 0.98) 100%);
+    border: 4px solid;
+    border-radius: 20px;
+    padding: 25px 35px;
+    min-width: 350px;
+    max-width: 450px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff;
+    text-align: center;
+    animation: slideIn 0.5s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  /* Grade-based border colors */
+  .results-panel.grade-S {
+    border-color: #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+  }
+  .results-panel.grade-A {
+    border-color: #00ff88;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+  }
+  .results-panel.grade-B {
+    border-color: #00d4ff;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+  }
+  .results-panel.grade-C {
+    border-color: #ffaa00;
+    box-shadow: 0 0 30px rgba(255, 170, 0, 0.4);
+  }
+  .results-panel.grade-D {
+    border-color: #ff6600;
+    box-shadow: 0 0 30px rgba(255, 102, 0, 0.4);
+  }
+  .results-panel.grade-F {
+    border-color: #ff3333;
+    box-shadow: 0 0 30px rgba(255, 51, 51, 0.4);
+  }
+
+  .title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .grade-display {
+    margin: 20px 0;
+  }
+
+  .grade-letter {
+    font-size: 80px;
+    font-weight: bold;
+    line-height: 1;
+    animation: gradeReveal 0.5s ease-out 0.3s both;
+  }
+
+  @keyframes gradeReveal {
+    from {
+      opacity: 0;
+      transform: scale(2);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .grade-S .grade-letter { color: #ffd700; text-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+  .grade-A .grade-letter { color: #00ff88; text-shadow: 0 0 30px rgba(0, 255, 136, 0.8); }
+  .grade-B .grade-letter { color: #00d4ff; text-shadow: 0 0 30px rgba(0, 212, 255, 0.8); }
+  .grade-C .grade-letter { color: #ffaa00; text-shadow: 0 0 30px rgba(255, 170, 0, 0.8); }
+  .grade-D .grade-letter { color: #ff6600; text-shadow: 0 0 30px rgba(255, 102, 0, 0.8); }
+  .grade-F .grade-letter { color: #ff3333; text-shadow: 0 0 30px rgba(255, 51, 51, 0.8); }
+
+  .grade-text {
+    font-size: 16px;
+    color: #aaaacc;
+    margin-top: 5px;
+  }
+
+  .score-section {
+    margin: 25px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+  }
+
+  .total-score {
+    font-size: 42px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+  }
+
+  .score-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    gap: 10px;
+  }
+
+  .stat-box {
+    flex: 1;
+    padding: 12px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00d4ff;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .improvements {
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+  }
+
+  .improvement-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #00ff88;
+    margin-bottom: 10px;
+  }
+
+  .improvement-item {
+    font-size: 13px;
+    color: #ccccee;
+    padding: 4px 0;
+  }
+
+  .improvement-item::before {
+    content: '★ ';
+    color: #ffd700;
+  }
+
+  .new-record {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #1a1a1a;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 8px;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .continue-hint {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+    animation: blink 2s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+</style>
+
+<div class="results-panel grade-B" id="results-panel">
+  <div class="title">Game Complete!</div>
+
+  <div class="grade-display">
+    <div class="grade-letter" id="grade-letter">B</div>
+    <div class="grade-text" id="grade-text">Great Job!</div>
+  </div>
+
+  <div class="score-section">
+    <div class="total-score" id="total-score">0</div>
+    <div class="score-label">Total Score</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-value" id="correct-count">0</div>
+      <div class="stat-label">Correct</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="accuracy">0%</div>
+      <div class="stat-label">Accuracy</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="best-streak">0</div>
+      <div class="stat-label">Best Streak</div>
+    </div>
+  </div>
+
+  <div class="improvements" id="improvements" style="display: none;">
+    <div class="improvement-title">Achievements</div>
+    <div id="improvement-list"></div>
+  </div>
+
+  <div class="continue-hint">Falling back to lobby...</div>
+</div>
+
+<script>
+  const gradeTexts = {
+    'S': 'Perfect!',
+    'A': 'Excellent!',
+    'B': 'Great Job!',
+    'C': 'Good Effort!',
+    'D': 'Keep Practicing!',
+    'F': 'Try Again!'
+  };
+
+  hytopia.onData((data) => {
+    const panel = document.getElementById('results-panel');
+
+    if (data.grade !== undefined) {
+      // Update grade class
+      panel.className = 'results-panel grade-' + data.grade;
+      document.getElementById('grade-letter').textContent = data.grade;
+      document.getElementById('grade-text').textContent = gradeTexts[data.grade] || '';
+    }
+
+    if (data.totalScore !== undefined) {
+      document.getElementById('total-score').textContent = formatNumber(data.totalScore);
+    }
+
+    if (data.correctAnswers !== undefined) {
+      document.getElementById('correct-count').textContent = data.correctAnswers;
+    }
+
+    if (data.accuracy !== undefined) {
+      document.getElementById('accuracy').textContent = Math.round(data.accuracy) + '%';
+    }
+
+    if (data.bestStreak !== undefined) {
+      document.getElementById('best-streak').textContent = data.bestStreak;
+    }
+
+    // Handle improvements/achievements
+    if (data.improvements && data.improvements.length > 0) {
+      const improvementsDiv = document.getElementById('improvements');
+      const listDiv = document.getElementById('improvement-list');
+      improvementsDiv.style.display = 'block';
+
+      listDiv.innerHTML = data.improvements.map(imp => {
+        let html = `<div class="improvement-item">${imp.text}`;
+        if (imp.isNewRecord) {
+          html += '<span class="new-record">NEW RECORD!</span>';
+        }
+        html += '</div>';
+        return html;
+      }).join('');
+    }
+  });
+
+  function formatNumber(num) {
+    return num.toLocaleString();
+  }
+</script>

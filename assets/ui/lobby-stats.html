@@ -1,0 +1,152 @@
+<!--
+  Lobby Stats SceneUI Template
+
+  Displays player stats on a floating panel in the lobby area.
+  Shows: username, level, total score, games played, high score
+-->
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .stats-panel {
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.95) 0%, rgba(30, 30, 60, 0.95) 100%);
+    border: 3px solid rgba(255, 215, 0, 0.8);
+    border-radius: 16px;
+    padding: 20px 30px;
+    min-width: 280px;
+    max-width: 350px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff;
+    box-shadow:
+      0 0 20px rgba(255, 215, 0, 0.3),
+      0 0 40px rgba(255, 215, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.5);
+    padding-bottom: 10px;
+  }
+
+  .username {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+
+  .level-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+    color: #1a1a2e;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 8px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .stat-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #00d4ff;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: #aaaacc;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .highlight {
+    grid-column: span 2;
+  }
+
+  .highlight .stat-value {
+    font-size: 28px;
+    color: #ffd700;
+  }
+</style>
+
+<div class="stats-panel">
+  <div class="header">
+    <div class="username" id="username">Player</div>
+    <div class="level-badge">Level <span id="level">1</span></div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-item highlight">
+      <div class="stat-value" id="total-score">0</div>
+      <div class="stat-label">Total Score</div>
+    </div>
+
+    <div class="stat-item">
+      <div class="stat-value" id="games-played">0</div>
+      <div class="stat-label">Games</div>
+    </div>
+
+    <div class="stat-item">
+      <div class="stat-value" id="high-score">0</div>
+      <div class="stat-label">High Score</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Handle state updates from the server
+  hytopia.onData((data) => {
+    if (data.username !== undefined) {
+      document.getElementById('username').textContent = data.username;
+    }
+    if (data.level !== undefined) {
+      document.getElementById('level').textContent = data.level;
+    }
+    if (data.totalScore !== undefined) {
+      document.getElementById('total-score').textContent = formatNumber(data.totalScore);
+    }
+    if (data.gamesPlayed !== undefined) {
+      document.getElementById('games-played').textContent = data.gamesPlayed;
+    }
+    if (data.highScore !== undefined) {
+      document.getElementById('high-score').textContent = formatNumber(data.highScore);
+    }
+  });
+
+  function formatNumber(num) {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  }
+</script>

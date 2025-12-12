@@ -1,0 +1,3358 @@
+<!--
+This is a basic boilerplate example of how to implement simple game UI,
+and also configure additional buttons for mobile compatibility.
+-->
+
+
+<!--
+  HYTOPIA allows you to build completely custom UI using HTML, CSS and Javascript.
+  You can build simple UIs, to highly complex ones. UI capabilities are as powerful
+  as building a regular web page - there are close to no limitations on what is possible.
+
+  Remember, HYTOPIA sandboxes your UI & UI scripts, so external network requests or
+  other unsafe actions likely won't work as you expect in production.
+-->
+
+<!-- Start Screen (legacy - now uses lobby-screen) -->
+<div id="start-screen" class="screen">
+  <img id="start-image" src="{{CDN_ASSETS_URL}}/ui/logos/free-fall-logo2.png" alt="Free Fall Math">
+  <div class="instructions">
+    A math problem will appear at the top of the screen.<br>
+    Move your character to the block showing the correct answer!<br>
+    Answer 10 questions to complete the game.<br><br>
+    Choose your difficulty:
+  </div>
+  <!-- Difficulty Buttons -->
+  <div class="difficulty-buttons">
+      <div id="beginner-button" class="button">Beginner</div>
+      <div id="moderate-button" class="button">Moderate</div>
+      <div id="hard-button" class="button">Hard</div>
+  </div>
+  <!-- Multiplayer Button -->
+  <div class="multiplayer-access">
+    <div id="multiplayer-button" class="button">Multiplayer</div>
+  </div>
+  
+  <!-- Accessibility Settings Button -->
+  <div class="accessibility-access">
+    <div id="accessibility-button" class="button">♿ Accessibility</div>
+  </div>
+  <!-- <div id="start-button" class="button">Start Game</div> --> <!-- Original button commented out -->
+</div>
+
+<!-- Game HUD -->
+<div id="game-hud" class="screen">
+  <div class="math-problem-ui">
+    <div id="problem-container">
+      <span id="problem-num1">?</span>
+      <span id="problem-op">+</span>
+      <span id="problem-num2">?</span>
+    </div>
+  </div>
+  
+  <!-- Power-up Indicators -->
+  <div id="powerup-indicators" class="powerup-indicators">
+    <!-- Power-ups will be dynamically added here -->
+  </div>
+  
+  <!-- Rewind Power-up Button -->
+  <div id="rewind-button" class="rewind-button" style="display: none;">
+    <span class="rewind-icon">⏪</span>
+    <span class="rewind-text">REWIND</span>
+    <span class="rewind-count">0</span>
+  </div>
+</div>
+
+<!-- End Screen -->
+<div id="end-screen" class="screen">
+  <h1>Game Over!</h1>
+  <div class="final-score-container">
+    Final Score: <span id="final-score">0</span>
+  </div>
+  <div id="play-again-button" class="button">Play Again</div>
+</div>
+
+<!-- Lobby Screen - Fall-to-Select System -->
+<div id="lobby-screen" class="screen active">
+  <div class="lobby-container">
+    <!-- Stats Panel -->
+    <div class="lobby-stats-panel">
+      <div class="stats-header">
+        <span class="player-name" id="lobby-player-name">Player</span>
+        <span class="player-level" id="lobby-player-level">Level 1</span>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-value" id="lobby-total-score">0</span>
+          <span class="stat-label">Total Score</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="lobby-games-played">0</span>
+          <span class="stat-label">Games</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" id="lobby-high-score">0</span>
+          <span class="stat-label">High Score</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection Header -->
+    <div class="lobby-selection-header" id="lobby-selection-header">
+      <div class="selection-title" id="lobby-selection-title">Choose Game Mode</div>
+      <div class="selection-subtitle" id="lobby-selection-subtitle">Fall onto your choice!</div>
+      <div class="selection-arrow">&#8595;</div>
+    </div>
+
+    <!-- Selection Options (shows what player is choosing) -->
+    <div class="lobby-options" id="lobby-options">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+</div>
+
+<!-- Phase 3: Multiplayer Menu -->
+<div id="multiplayer-menu" class="screen">
+  <h1>Multiplayer</h1>
+  <div class="multiplayer-buttons">
+    <div id="race-mode-button" class="button">Competitive Race</div>
+    <div id="team-mode-button" class="button">Team Challenge</div>
+    <div id="leaderboard-button" class="button">Leaderboards</div>
+    <div id="friends-button" class="button">Friends</div>
+    <div id="back-to-main-button" class="button">Back to Main</div>
+  </div>
+</div>
+
+<!-- Phase 3: Race Lobby -->
+<div id="race-lobby" class="screen">
+  <h1>Race Lobby</h1>
+  <div id="race-lobby-content">
+    <div id="race-info">
+      <p>Session ID: <span id="race-session-id">-</span></p>
+      <p>Players: <span id="race-player-count">0</span></p>
+    </div>
+    <div id="race-players-list">
+      <!-- Players will be added dynamically -->
+    </div>
+    <div class="race-buttons">
+      <div id="start-race-button" class="button disabled">Start Race</div>
+      <div id="leave-race-button" class="button">Leave Race</div>
+    </div>
+  </div>
+</div>
+
+<!-- Phase 3: Team Lobby -->
+<div id="team-lobby" class="screen">
+  <h1>Team Challenge</h1>
+  <div id="team-lobby-content">
+    <div id="team-selection">
+      <div class="team red" id="red-team">
+        <h3>Red Team</h3>
+        <div class="team-members"></div>
+        <div class="join-team-button" data-team="red">Join</div>
+      </div>
+      <div class="team blue" id="blue-team">
+        <h3>Blue Team</h3>
+        <div class="team-members"></div>
+        <div class="join-team-button" data-team="blue">Join</div>
+      </div>
+    </div>
+    <div class="team-buttons">
+      <div id="start-team-challenge-button" class="button disabled">Start Challenge</div>
+      <div id="leave-team-button" class="button">Leave Team</div>
+    </div>
+  </div>
+</div>
+
+<!-- Phase 3: Leaderboards -->
+<div id="leaderboards-screen" class="screen">
+  <h1>Leaderboards</h1>
+  <div class="leaderboard-tabs">
+    <div class="tab active" data-type="all_time_score">All Time</div>
+    <div class="tab" data-type="daily_score">Daily</div>
+    <div class="tab" data-type="weekly_score">Weekly</div>
+    <div class="tab" data-type="race_wins">Race Wins</div>
+  </div>
+  <div id="leaderboard-content">
+    <div class="leaderboard-header">
+      <span>Rank</span>
+      <span>Player</span>
+      <span>Score</span>
+    </div>
+    <div id="leaderboard-entries">
+      <!-- Entries will be added dynamically -->
+    </div>
+  </div>
+  <div id="player-rank-info">
+    Your Rank: <span id="player-rank">-</span>
+  </div>
+  <div id="back-from-leaderboard-button" class="button">Back</div>
+</div>
+
+<!-- Phase 3: Social/Friends Screen -->
+<div id="friends-screen" class="screen">
+  <h1>Friends</h1>
+  <div class="friends-tabs">
+    <div class="tab active" data-type="friends">Friends</div>
+    <div class="tab" data-type="requests">Requests</div>
+    <div class="tab" data-type="profile">Profile</div>
+  </div>
+  <div id="friends-content">
+    <div id="friends-list">
+      <!-- Friends will be added dynamically -->
+    </div>
+    <div id="friend-requests">
+      <!-- Friend requests will be added dynamically -->
+    </div>
+    <div id="player-profile">
+      <!-- Profile content -->
+    </div>
+  </div>
+  <div id="back-from-friends-button" class="button">Back</div>
+</div>
+
+<!-- Phase 3: Race Progress HUD -->
+<div id="race-progress-hud" class="race-hud">
+  <div class="race-timer">Time: <span id="race-timer">0:00</span></div>
+  <div class="race-progress-bars">
+    <!-- Progress bars for each player will be added dynamically -->
+  </div>
+</div>
+
+<!-- Phase 3: Team Progress HUD -->
+<div id="team-progress-hud" class="team-hud">
+  <div class="team-stats">
+    <div class="team-info">
+      <span id="team-name">Team</span>
+      <span id="team-score">Score: 0</span>
+      <span id="team-lives">Lives: 5</span>
+    </div>
+  </div>
+  <div class="team-members-progress">
+    <!-- Team member progress will be added dynamically -->
+  </div>
+</div>
+
+<!-- Phase 4: Accessibility Settings Menu -->
+<div id="accessibility-menu" class="screen">
+  <h1>♿ Accessibility Settings</h1>
+  <div class="accessibility-settings">
+    
+    <!-- Visual Settings -->
+    <div class="settings-group">
+      <h3>Visual Settings</h3>
+      <div class="setting-item">
+        <label for="colorblind-toggle">Colorblind Friendly Colors</label>
+        <input type="checkbox" id="colorblind-toggle">
+      </div>
+      <div class="setting-item">
+        <label for="high-contrast-toggle">High Contrast Mode</label>
+        <input type="checkbox" id="high-contrast-toggle">
+      </div>
+      <div class="setting-item">
+        <label for="text-size-select">Text Size</label>
+        <select id="text-size-select">
+          <option value="small">Small</option>
+          <option value="medium" selected>Medium</option>
+          <option value="large">Large</option>
+          <option value="extra-large">Extra Large</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="reduced-motion-toggle">Reduce Motion</label>
+        <input type="checkbox" id="reduced-motion-toggle">
+      </div>
+    </div>
+
+    <!-- Audio Settings -->
+    <div class="settings-group">
+      <h3>Audio Settings</h3>
+      <div class="setting-item">
+        <label for="audio-descriptions-toggle">Audio Descriptions</label>
+        <input type="checkbox" id="audio-descriptions-toggle">
+      </div>
+      <div class="setting-item">
+        <label for="audio-cues-toggle">Audio Cues</label>
+        <input type="checkbox" id="audio-cues-toggle" checked>
+      </div>
+      <div class="setting-item">
+        <label for="sound-volume-slider">Sound Volume</label>
+        <input type="range" id="sound-volume-slider" min="0" max="100" value="70">
+        <span id="sound-volume-value">70%</span>
+      </div>
+    </div>
+
+    <!-- Motor Settings -->
+    <div class="settings-group">
+      <h3>Motor Settings</h3>
+      <div class="setting-item">
+        <label for="one-handed-toggle">One-Handed Mode</label>
+        <input type="checkbox" id="one-handed-toggle">
+      </div>
+      <div class="setting-item">
+        <label for="haptic-feedback-toggle">Haptic Feedback</label>
+        <input type="checkbox" id="haptic-feedback-toggle" checked>
+      </div>
+      <div class="setting-item">
+        <label for="touch-sensitivity-slider">Touch Sensitivity</label>
+        <input type="range" id="touch-sensitivity-slider" min="10" max="200" value="100">
+        <span id="touch-sensitivity-value">100%</span>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="settings-group">
+      <h3>Quick Actions</h3>
+      <div class="accessibility-buttons">
+        <div id="calibrate-touch-button" class="button">Calibrate Touch</div>
+        <div id="describe-game-button" class="button">Describe Game</div>
+        <div id="reset-accessibility-button" class="button">Reset Settings</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="settings-group">
+      <div class="accessibility-buttons">
+        <div id="accessibility-back-button" class="button">Back to Main</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Notification System -->
+<div id="error-notification-container" class="error-notifications">
+  <!-- Error notifications will be dynamically added here -->
+</div>
+
+<!-- Success Notification System -->
+<div id="success-notification-container" class="success-notifications">
+  <!-- Success notifications will be dynamically added here -->
+</div>
+
+<!-- Mobile Controls - Updated with directional pad -->
+<div class="mobile-controls">
+  <!-- Directional pad for movement -->
+  <div class="mobile-direction-pad">
+    <!-- Top row -->
+    <div class="dir-cell"></div>
+    <div id="mobile-up" class="mobile-dir-button">↑</div>
+    <div class="dir-cell"></div>
+    <!-- Middle row with left/right -->
+    <div id="mobile-left" class="mobile-dir-button">←</div>
+    <div class="dir-cell"></div>
+    <div id="mobile-right" class="mobile-dir-button">→</div>
+    <!-- Bottom row -->
+    <div class="dir-cell"></div>
+    <div id="mobile-down" class="mobile-dir-button">↓</div>
+    <div class="dir-cell"></div>
+  </div>
+
+  <!-- Action buttons removed - not needed for Free Fall game -->
+  
+  <!-- Look Down Button (Centered) -->
+  <div class="mobile-look-down-container">
+    <a id="mobile-look-down" class="mobile-look-down-button">
+      <div class="look-down-icon">👇</div>
+      <div class="look-down-text">LOOK DOWN</div>
+    </a>
+  </div>
+</div>
+
+<style>
+  /* By default, we hide the mobile controls */
+  .mobile-controls {
+    display: none;
+  }
+
+  /*
+    Mobile controls are shown based on device detection.
+    The game uses a custom detector UI to determine device type and loads appropriate UI.
+    Mobile controls are enabled through CSS when needed.
+  */
+  body.mobile .mobile-controls { /* If this css selector matches because we're on mobile, show the mobile controls */
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    pointer-events: none; /* Allow clicks to pass through container */
+  }
+
+  /* Mobile action buttons removed - not needed for Free Fall game */
+
+  /* Mobile Look Down Button (center bottom) */
+  .mobile-look-down-container {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto; /* Enable interaction */
+    z-index: 100; /* Ensure it's above other elements */
+  }
+
+  .mobile-look-down-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .look-down-icon {
+    font-size: 32px;
+    margin-bottom: 2px;
+  }
+
+  .look-down-text {
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .mobile-look-down-button.active {
+    transform: scale(0.95);
+    background-color: rgba(0, 100, 255, 0.8);
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.5);
+  }
+
+  /* Mobile direction pad (left side) */
+  .mobile-direction-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 5px;
+    position: fixed;
+    bottom: 40px;
+    left: 40px;
+    width: 150px;
+    height: 150px;
+    pointer-events: auto; /* Enable interaction with dpad */
+  }
+
+  /* Directional button cells */
+  .dir-cell {
+    width: 46px;
+    height: 46px;
+  }
+
+  /* Direction buttons */
+  .mobile-dir-button {
+    width: 46px;
+    height: 46px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, background-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+    user-select: none;
+  }
+
+  /* You can configure and style your buttons however you'd like. This is a minimalistic starting point. */
+  .mobile-button {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    width: 50px;
+    height: 50px;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, background-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+    user-select: none;
+  }
+  
+  .mobile-button img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .mobile-button.active,
+  .mobile-dir-button.active {
+    transform: scale(0.92);
+    background-color: rgba(0, 0, 0, 0.75);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }  
+
+  /* Ensure no default body margin */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    user-select: none;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.3); /* Optional: slightly dim background */
+  }
+
+  .screen {
+      display: none; /* Hide screens by default */
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+  }
+
+  .screen.active {
+      display: block; /* Show active screen */
+  }
+
+  /* Start Screen Styles */
+  #start-screen.active { /* Apply flex only when active */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+  }
+
+  #start-image {
+      max-width: 80%;
+      max-height: 50%; /* Adjusted max height */
+      margin-bottom: 20px; /* Adjusted margin */
+      object-fit: contain;
+  }
+
+  .instructions {
+      margin-bottom: 30px; /* Add margin below instructions */
+      font-size: 16px; /* Slightly smaller font */
+      line-height: 1.5;
+  }
+
+  /* Style for the difficulty button container */
+  .difficulty-buttons {
+      display: flex; /* Arrange buttons horizontally */
+      gap: 15px; /* Add space between buttons */
+      margin-top: 10px; /* Add some space above the buttons */
+  }
+
+  .button {
+      background-color: #4CAF50; /* Green background */
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      min-width: 120px; /* Ensure buttons have a minimum width */
+  }
+
+  .button:hover {
+      background-color: #45a049; /* Darker green on hover - Keep general hover */
+  }
+
+  /* Specific styles for difficulty buttons */
+  #beginner-button {
+      background-color: #007bff; /* Bright Blue */
+  }
+  #beginner-button:hover {
+      background-color: #0056b3; /* Darker Blue */
+  }
+
+  #moderate-button {
+      background-color: #ffc107; /* Bright Yellow */
+      color: #333; /* Darker text for yellow */
+  }
+  #moderate-button:hover {
+      background-color: #e0a800; /* Darker Yellow */
+  }
+
+  #hard-button {
+      background-color: #dc3545; /* Bright Red */
+  }
+   #hard-button:hover {
+      background-color: #c82333; /* Darker Red */
+  }
+
+  /* Game HUD Styles (Problem container) */
+  .math-problem-ui {
+    position: absolute; /* Position relative to game-hud screen */
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 15px 30px;
+    border-radius: 10px;
+    z-index: 10;
+    margin-top: 20px;
+  }
+
+  #problem-container {
+    font-size: 48px;
+    font-weight: bold;
+  }
+
+  #problem-container span {
+    margin: 0 10px;
+  }
+
+  /* Power-up Indicators Styles */
+  .powerup-indicators {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 15;
+  }
+
+  .powerup-indicator {
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 120px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: powerup-appear 0.3s ease-out;
+  }
+
+  .powerup-indicator.expired {
+    animation: powerup-disappear 0.3s ease-in;
+  }
+
+  .powerup-icon {
+    font-size: 16px;
+    margin-right: 8px;
+  }
+
+  .powerup-name {
+    flex: 1;
+    text-align: left;
+  }
+
+  .powerup-timer {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+
+  .powerup-uses {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  /* Power-up specific colors */
+  .powerup-slowmotion { border-color: #00bfff; color: #00bfff; }
+  .powerup-shield { border-color: #32cd32; color: #32cd32; }
+  .powerup-magnet { border-color: #c864ff; color: #c864ff; }
+  .powerup-doublepoints { border-color: #ffd700; color: #ffd700; }
+  .powerup-rewind { border-color: #50ff50; color: #50ff50; }
+  
+  /* Rewind Button Styles */
+  .rewind-button {
+    position: absolute;
+    bottom: 100px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 3px solid #50ff50;
+    border-radius: 15px;
+    padding: 15px 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Minecraft', monospace;
+    color: #50ff50;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(80, 255, 80, 0.3);
+    transition: all 0.3s ease;
+    user-select: none;
+  }
+  
+  .rewind-button:hover {
+    background-color: rgba(80, 255, 80, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(80, 255, 80, 0.5);
+  }
+  
+  .rewind-button:active {
+    transform: scale(0.95);
+  }
+  
+  .rewind-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #666;
+    color: #666;
+  }
+  
+  .rewind-button.disabled:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .rewind-icon {
+    font-size: 24px;
+  }
+  
+  .rewind-text {
+    font-size: 18px;
+    text-transform: uppercase;
+  }
+  
+  .rewind-count {
+    background-color: rgba(80, 255, 80, 0.3);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  
+  @keyframes rewind-pulse {
+    0% { box-shadow: 0 4px 10px rgba(80, 255, 80, 0.3); }
+    50% { box-shadow: 0 4px 20px rgba(80, 255, 80, 0.8); }
+    100% { box-shadow: 0 4px 10px rgba(80, 255, 80, 0.3); }
+  }
+  
+  .rewind-button.available {
+    animation: rewind-pulse 2s infinite;
+  }
+
+  @keyframes powerup-appear {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes powerup-disappear {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+  }
+
+  /* End Screen Styles */
+  #end-screen.active { /* Apply styles only when active */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.8); /* Slightly darker overlay */
+  }
+
+  #end-screen h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .final-score-container {
+    font-size: 24px;
+    margin-bottom: 40px;
+  }
+
+  #final-score {
+    font-weight: bold;
+    color: #4CAF50; /* Green color for score */
+  }
+
+  /* Reuse button style for play again */
+  #play-again-button {
+    margin-top: 20px;
+  }
+
+  /* ===== LOBBY SCREEN STYLES ===== */
+  #lobby-screen.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 20px;
+    background: transparent; /* Transparent to see game world */
+    pointer-events: none; /* Allow clicking through to game */
+  }
+
+  #lobby-screen.active * {
+    pointer-events: auto; /* But UI elements are still clickable */
+  }
+
+  .lobby-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .lobby-stats-panel {
+    background: linear-gradient(135deg, rgba(15,15,35,0.95) 0%, rgba(25,25,55,0.95) 100%);
+    border: 2px solid rgba(0,200,255,0.5);
+    border-radius: 12px;
+    padding: 15px 25px;
+    margin-bottom: 20px;
+    min-width: 300px;
+    box-shadow: 0 0 20px rgba(0,200,255,0.3);
+  }
+
+  .lobby-stats-panel .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .lobby-stats-panel .player-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00d4ff;
+  }
+
+  .lobby-stats-panel .player-level {
+    font-size: 14px;
+    color: #ffd700;
+    background: rgba(255,215,0,0.2);
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+
+  .lobby-stats-panel .stats-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+  }
+
+  .lobby-stats-panel .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lobby-stats-panel .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+  }
+
+  .lobby-stats-panel .stat-label {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+  }
+
+  .lobby-selection-header {
+    background: linear-gradient(135deg, rgba(20,20,50,0.95) 0%, rgba(40,40,80,0.95) 100%);
+    border: 3px solid rgba(255,200,0,0.7);
+    border-radius: 16px;
+    padding: 20px 40px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(255,200,0,0.4);
+    animation: lobbyFloat 2s ease-in-out infinite;
+    margin-bottom: 20px;
+  }
+
+  @keyframes lobbyFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  .lobby-selection-header .selection-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255,215,0,0.6);
+    margin-bottom: 8px;
+  }
+
+  .lobby-selection-header .selection-subtitle {
+    font-size: 14px;
+    color: #aaccff;
+    letter-spacing: 1px;
+  }
+
+  .lobby-selection-header .selection-arrow {
+    margin-top: 10px;
+    font-size: 24px;
+    color: #00ff88;
+    animation: bounce 1s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+
+  /* Phase-specific header colors */
+  .lobby-selection-header.mode {
+    border-color: rgba(255,200,0,0.8);
+    box-shadow: 0 0 25px rgba(255,200,0,0.4);
+  }
+  .lobby-selection-header.mode .selection-title { color: #ffd700; }
+
+  .lobby-selection-header.subject {
+    border-color: rgba(0,255,150,0.8);
+    box-shadow: 0 0 25px rgba(0,255,150,0.4);
+  }
+  .lobby-selection-header.subject .selection-title { color: #00ff88; }
+
+  .lobby-selection-header.difficulty {
+    border-color: rgba(255,100,100,0.8);
+    box-shadow: 0 0 25px rgba(255,100,100,0.4);
+  }
+  .lobby-selection-header.difficulty .selection-title { color: #ff6666; }
+
+  .lobby-options {
+    position: fixed;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    z-index: 100;
+  }
+
+  .lobby-option {
+    background: rgba(0,0,0,0.7);
+    border: 3px solid rgba(255,255,255,0.5);
+    border-radius: 12px;
+    padding: 15px 30px;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .lobby-option:nth-child(1) {
+    border-color: #50c878; /* Green for Solo */
+  }
+  .lobby-option:nth-child(2) {
+    border-color: #ffd700; /* Gold for Tournament */
+  }
+  .lobby-option:nth-child(3) {
+    border-color: #00bfff; /* Blue for Practice */
+  }
+
+  /* Media Query for Mobile Layout Adjustments */
+  @media (max-width: 768px) {
+    /* Stack difficulty buttons vertically on smaller screens */
+    .difficulty-buttons {
+        flex-direction: column;
+        align-items: center; /* Center buttons when stacked */
+        gap: 10px; /* Adjust gap for vertical layout */
+    }
+
+    /* Optional: Ensure buttons have enough width when stacked */
+    .difficulty-buttons .button {
+        min-width: 150px; /* Adjust as needed */
+    }
+    
+    /* Reduce font size for math problem on mobile */
+    #problem-container {
+      font-size: 36px;
+    }
+    
+    /* Adjust end screen text sizes */
+    #end-screen h1 {
+      font-size: 36px;
+    }
+    
+    .final-score-container {
+      font-size: 20px;
+    }
+  }
+
+  /* Phase 3: Multiplayer UI Styles */
+  .multiplayer-access {
+    margin-top: 20px;
+  }
+
+  #multiplayer-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  #multiplayer-button:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  }
+
+  .multiplayer-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin-top: 30px;
+  }
+
+  /* Race/Team Lobby Styles */
+  #race-lobby, #team-lobby {
+    padding: 20px;
+  }
+
+  #race-info, #team-info {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  #race-players-list {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    min-height: 150px;
+  }
+
+  .race-buttons, .team-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+
+  /* Team Selection Styles */
+  #team-selection {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .team {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 200px;
+    text-align: center;
+  }
+
+  .team.red {
+    border: 3px solid #ff4444;
+  }
+
+  .team.blue {
+    border: 3px solid #4444ff;
+  }
+
+  .team h3 {
+    margin-bottom: 15px;
+    color: white;
+  }
+
+  .team-members {
+    min-height: 100px;
+    margin-bottom: 15px;
+  }
+
+  .join-team-button {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .join-team-button:hover {
+    background: #45a049;
+  }
+
+  /* Leaderboard Styles */
+  .leaderboard-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .tab.active {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  #leaderboard-content {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .leaderboard-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    gap: 10px;
+    font-weight: bold;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+
+  .leaderboard-entry {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Friends Screen Styles */
+  .friends-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  #friends-list, #friend-requests {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 200px;
+  }
+
+  .friend-item, .request-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .friend-status {
+    color: #4CAF50;
+  }
+
+  .friend-status.offline {
+    color: #ff4444;
+  }
+
+  /* Race/Team HUD Styles */
+  .race-hud, .team-hud {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    min-width: 250px;
+  }
+
+  .race-timer {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .race-progress-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .race-progress-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .progress-name {
+    width: 100px;
+    font-size: 12px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    transition: width 0.3s ease;
+  }
+
+  .team-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .team-members-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  /* Button States */
+  .button.disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .button.disabled:hover {
+    background: #666;
+    transform: none;
+  }
+
+  /* Hide multiplayer HUDs by default */
+  .race-hud, .team-hud {
+    display: none;
+  }
+
+  .race-hud.active, .team-hud.active {
+    display: block;
+  }
+
+  /* Phase 4: Accessibility UI Styles */
+  .accessibility-access {
+    margin-top: 15px;
+  }
+
+  #accessibility-button {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    font-size: 14px;
+  }
+
+  #accessibility-button:hover {
+    background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+  }
+
+  .accessibility-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .settings-group {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .settings-group h3 {
+    margin: 0 0 15px 0;
+    color: #fff;
+    font-size: 18px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 8px;
+  }
+
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+  }
+
+  .setting-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .setting-item label {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .setting-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+
+  .setting-item select {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .setting-item input[type="range"] {
+    width: 120px;
+    margin-right: 10px;
+  }
+
+  .setting-item span {
+    color: #fff;
+    font-size: 12px;
+    min-width: 35px;
+    text-align: right;
+  }
+
+  .accessibility-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .accessibility-buttons .button {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    margin: 0;
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  .accessibility-buttons .button:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #3d4043 100%);
+  }
+
+  #calibrate-touch-button {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  }
+
+  #calibrate-touch-button:hover {
+    background: linear-gradient(135deg, #138496 0%, #0f6674 100%);
+  }
+
+  #describe-game-button {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: #000;
+  }
+
+  #describe-game-button:hover {
+    background: linear-gradient(135deg, #e0a800 0%, #c69500 100%);
+  }
+
+  #reset-accessibility-button {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  }
+
+  #reset-accessibility-button:hover {
+    background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+  }
+
+  /* Mobile Accessibility Styles */
+  @media (max-width: 768px) {
+    .accessibility-settings {
+      padding: 15px;
+      gap: 20px;
+    }
+
+    .settings-group {
+      padding: 15px;
+    }
+
+    .setting-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .setting-item label {
+      margin-bottom: 5px;
+    }
+
+    .accessibility-buttons .button {
+      font-size: 16px;
+      padding: 15px 20px;
+    }
+  }
+
+  /* High Contrast Mode Styles */
+  .high-contrast {
+    filter: contrast(150%) !important;
+  }
+
+  .high-contrast * {
+    background-color: var(--bg-color, #000000) !important;
+    color: var(--text-color, #ffffff) !important;
+    border-color: var(--border-color, #ffffff) !important;
+  }
+
+  .high-contrast .button {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+  }
+
+  .high-contrast .button:hover {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Reduced Motion Styles */
+  .reduced-motion * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    transform: none !important;
+  }
+
+  /* One-Handed Mode Styles */
+  .mobile-controls.one-handed-mode {
+    transform: translateX(-20px);
+  }
+
+  .mobile-controls.one-handed-mode .mobile-dir-button,
+  .mobile-controls.one-handed-mode .mobile-button {
+    min-width: 60px;
+    min-height: 60px;
+    margin: 5px;
+  }
+
+  /* Notification System Styles */
+  .error-notifications, .success-notifications {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: 400px;
+    width: 90%;
+  }
+
+  .error-notification, .success-notification {
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: notification-slide-in 0.3s ease-out;
+    pointer-events: auto;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .error-notification {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    border: 2px solid #dc3545;
+  }
+
+  .success-notification {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: 2px solid #28a745;
+  }
+
+  .error-notification.dismissing, .success-notification.dismissing {
+    animation: notification-slide-out 0.3s ease-in;
+  }
+
+  .notification-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .notification-close:hover {
+    opacity: 1;
+  }
+
+  @keyframes notification-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes notification-slide-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+  }
+
+  /* Loading Indicator Styles */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  .loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: loading-spinner 1s linear infinite;
+    margin-right: 10px;
+  }
+
+  @keyframes loading-spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Keyboard Navigation Styles */
+  .keyboard-focused {
+    outline: 3px solid #007bff !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3) !important;
+  }
+
+  .button:focus, button:focus, input:focus, select:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+
+  /* Ensure all interactive elements can receive focus */
+  .button, .mobile-dir-button, .mobile-button {
+    cursor: pointer;
+  }
+
+  .button:focus-visible, button:focus-visible {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  // console.log('[UI DEBUG] Script block parsing started.'); // Keep this top-level log
+
+  // ** TODO: Replace DOMContentLoaded with the correct Hytopia UI initialization event **
+  // document.addEventListener('DOMContentLoaded', () => { 
+  //   initUI(); 
+  // });
+  
+  // Wrap UI initialization logic in a function
+  function initUI() {
+    // console.log('[UI DEBUG] Initializing UI...');
+
+    // Get references to screens and buttons
+    const startScreen = document.getElementById('start-screen');
+    const gameHud = document.getElementById('game-hud');
+    const endScreen = document.getElementById('end-screen');
+    // const startButton = document.getElementById('start-button'); // No longer used
+    const beginnerButton = document.getElementById('beginner-button'); // New
+    const moderateButton = document.getElementById('moderate-button'); // New
+    const hardButton = document.getElementById('hard-button'); // New
+    const playAgainButton = document.getElementById('play-again-button');
+
+    // Get references to multiplayer screens and buttons
+    const multiplayerMenu = document.getElementById('multiplayer-menu');
+    const raceLobby = document.getElementById('race-lobby');
+    const teamLobby = document.getElementById('team-lobby');
+    const leaderboardsScreen = document.getElementById('leaderboards-screen');
+    const friendsScreen = document.getElementById('friends-screen');
+    const accessibilityMenu = document.getElementById('accessibility-menu');
+
+    // Lobby screen elements
+    const lobbyScreen = document.getElementById('lobby-screen');
+    const lobbyPlayerName = document.getElementById('lobby-player-name');
+    const lobbyPlayerLevel = document.getElementById('lobby-player-level');
+    const lobbyTotalScore = document.getElementById('lobby-total-score');
+    const lobbyGamesPlayed = document.getElementById('lobby-games-played');
+    const lobbyHighScore = document.getElementById('lobby-high-score');
+    const lobbySelectionHeader = document.getElementById('lobby-selection-header');
+    const lobbySelectionTitle = document.getElementById('lobby-selection-title');
+    const lobbySelectionSubtitle = document.getElementById('lobby-selection-subtitle');
+    const lobbyOptions = document.getElementById('lobby-options');
+
+    // Main navigation buttons
+    const multiplayerButton = document.getElementById('multiplayer-button');
+    const accessibilityButton = document.getElementById('accessibility-button');
+
+    // Multiplayer menu buttons
+    const raceModeButton = document.getElementById('race-mode-button');
+    const teamModeButton = document.getElementById('team-mode-button');
+    const leaderboardButton = document.getElementById('leaderboard-button');
+    const friendsButton = document.getElementById('friends-button');
+    const backToMainButton = document.getElementById('back-to-main-button');
+
+    // Race lobby buttons
+    const startRaceButton = document.getElementById('start-race-button');
+    const leaveRaceButton = document.getElementById('leave-race-button');
+
+    // Team lobby buttons
+    const startTeamChallengeButton = document.getElementById('start-team-challenge-button');
+    const leaveTeamButton = document.getElementById('leave-team-button');
+
+    // Leaderboard buttons
+    const backFromLeaderboardButton = document.getElementById('back-from-leaderboard-button');
+
+    // Friends screen buttons
+    const backFromFriendsButton = document.getElementById('back-from-friends-button');
+
+    // Accessibility buttons
+    const accessibilityBackButton = document.getElementById('accessibility-back-button');
+
+    // Accessibility controls
+    const colorblindToggle = document.getElementById('colorblind-toggle');
+    const highContrastToggle = document.getElementById('high-contrast-toggle');
+    const textSizeSelect = document.getElementById('text-size-select');
+    const reducedMotionToggle = document.getElementById('reduced-motion-toggle');
+    const audioDescriptionsToggle = document.getElementById('audio-descriptions-toggle');
+    const audioCuesToggle = document.getElementById('audio-cues-toggle');
+    const soundVolumeSlider = document.getElementById('sound-volume-slider');
+    const soundVolumeValue = document.getElementById('sound-volume-value');
+    const oneHandedToggle = document.getElementById('one-handed-toggle');
+    const hapticFeedbackToggle = document.getElementById('haptic-feedback-toggle');
+    const touchSensitivitySlider = document.getElementById('touch-sensitivity-slider');
+    const touchSensitivityValue = document.getElementById('touch-sensitivity-value');
+    const calibrateTouchButton = document.getElementById('calibrate-touch-button');
+    const describeGameButton = document.getElementById('describe-game-button');
+    const resetAccessibilityButton = document.getElementById('reset-accessibility-button');
+    // console.log('[UI DEBUG] Got screen/button elements.'); 
+
+    // Get references to problem display elements
+    const problemNum1 = document.getElementById('problem-num1');
+    const problemOp = document.getElementById('problem-op');
+    const problemNum2 = document.getElementById('problem-num2');
+
+    // Get reference to final score display
+    const finalScoreDisplay = document.getElementById('final-score');
+
+    // Get references to mobile control buttons
+    const mobileUpButton = document.getElementById('mobile-up');
+    const mobileLeftButton = document.getElementById('mobile-left');
+    const mobileRightButton = document.getElementById('mobile-right');
+    const mobileDownButton = document.getElementById('mobile-down');
+
+    // --- Safety Checks ---
+    if (!startScreen || !gameHud || !endScreen || !beginnerButton || !moderateButton || !hardButton || !playAgainButton || !problemNum1 || !problemOp || !problemNum2 || !finalScoreDisplay) {
+      console.error('[UI Error] One or more essential elements not found!');
+      // Add checks for new buttons
+      if (!beginnerButton) console.error('[UI Error] beginnerButton element is missing!');
+      if (!moderateButton) console.error('[UI Error] moderateButton element is missing!');
+      if (!hardButton) console.error('[UI Error] hardButton element is missing!');
+      return; 
+    }
+    
+    // Check mobile controls
+    if (!mobileUpButton || !mobileLeftButton || !mobileRightButton || !mobileDownButton) {
+      console.error('[UI Error] One or more mobile control elements not found!');
+      return;
+    }
+    // console.log('[UI DEBUG] All essential elements found.'); 
+    // console.log('[UI DEBUG] startButton element:', startButton); // No longer relevant
+
+    // Helper function to format numbers with commas
+    function formatNumber(num) {
+      return (num || 0).toLocaleString();
+    }
+
+    // Function to switch active screen
+    function showScreen(screenElement) {
+      // console.log('[UI DEBUG] Attempting to show screen:', screenElement.id);
+      // Hide all screens first
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      // Show the target screen
+      if (screenElement) {
+          screenElement.classList.add('active');
+          // console.log('[UI DEBUG] Activated screen:', screenElement.id);
+      } else {
+          console.error('[UI Error] showScreen called with null or undefined element'); // Keep basic error
+      }
+    }
+
+    // --- Event Listeners ---
+    
+    // Function to handle starting the game with a specific difficulty
+    function startGame(difficulty) {
+      console.log(`[UI] Starting game with difficulty: ${difficulty}`);
+      hytopia.sendData({ type: 'start-game', difficulty: difficulty });
+      showScreen(gameHud);
+      // Play start game sound
+      try {
+        const startSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/button-click.mp3';
+        const startSound = new Audio(startSoundPath);
+        startSound.play().catch(error => {
+          console.warn('Could not autoplay start game sound:', error);
+        });
+      } catch (error) {
+        console.error('Error creating or playing start game sound:', error);
+      }
+    }
+
+    // Add listeners to new difficulty buttons
+    beginnerButton.addEventListener('click', () => startGame('beginner'));
+    moderateButton.addEventListener('click', () => startGame('moderate'));
+    hardButton.addEventListener('click', () => startGame('hard'));
+
+    // === MULTIPLAYER NAVIGATION EVENT HANDLERS ===
+    
+    // Main navigation
+    if (multiplayerButton) {
+      multiplayerButton.addEventListener('click', () => {
+        console.log('[UI] Opening multiplayer menu');
+        showScreen(multiplayerMenu);
+        playButtonSound();
+      });
+    }
+
+    if (accessibilityButton) {
+      accessibilityButton.addEventListener('click', () => {
+        console.log('[UI] Opening accessibility menu');
+        showScreen(accessibilityMenu);
+        playButtonSound();
+      });
+    }
+
+    // Multiplayer menu navigation
+    if (raceModeButton) {
+      raceModeButton.addEventListener('click', () => {
+        console.log('[UI] Joining race mode');
+        hytopia.sendData({ type: 'join-race-lobby' });
+        showScreen(raceLobby);
+        initializeRaceLobby();
+        playButtonSound();
+      });
+    }
+
+    if (teamModeButton) {
+      teamModeButton.addEventListener('click', () => {
+        console.log('[UI] Opening team challenge');
+        hytopia.sendData({ type: 'join-team-lobby' });
+        showScreen(teamLobby);
+        initializeTeamLobby();
+        playButtonSound();
+      });
+    }
+
+    if (leaderboardButton) {
+      leaderboardButton.addEventListener('click', () => {
+        console.log('[UI] Opening leaderboards');
+        hytopia.sendData({ type: 'request-leaderboard-data', category: 'all_time_score' });
+        showScreen(leaderboardsScreen);
+        initializeLeaderboards();
+        playButtonSound();
+      });
+    }
+
+    if (friendsButton) {
+      friendsButton.addEventListener('click', () => {
+        console.log('[UI] Opening friends screen');
+        hytopia.sendData({ type: 'request-friends-list' });
+        showScreen(friendsScreen);
+        initializeFriendsScreen();
+        playButtonSound();
+      });
+    }
+
+    // Back navigation
+    if (backToMainButton) {
+      backToMainButton.addEventListener('click', () => {
+        console.log('[UI] Returning to lobby');
+        showScreen(lobbyScreen);
+        playButtonSound();
+      });
+    }
+
+    if (accessibilityBackButton) {
+      accessibilityBackButton.addEventListener('click', () => {
+        console.log('[UI] Returning from accessibility menu');
+        showScreen(lobbyScreen);
+        playButtonSound();
+      });
+    }
+
+    if (backFromLeaderboardButton) {
+      backFromLeaderboardButton.addEventListener('click', () => {
+        console.log('[UI] Returning from leaderboards');
+        showScreen(multiplayerMenu);
+        playButtonSound();
+      });
+    }
+
+    if (backFromFriendsButton) {
+      backFromFriendsButton.addEventListener('click', () => {
+        console.log('[UI] Returning from friends screen');
+        showScreen(multiplayerMenu);
+        playButtonSound();
+      });
+    }
+
+    // Race lobby controls
+    if (startRaceButton) {
+      startRaceButton.addEventListener('click', () => {
+        if (!startRaceButton.classList.contains('disabled')) {
+          console.log('[UI] Starting race');
+          hytopia.sendData({ type: 'start-race' });
+          showScreen(gameHud);
+          playButtonSound();
+        }
+      });
+    }
+
+    if (leaveRaceButton) {
+      leaveRaceButton.addEventListener('click', () => {
+        console.log('[UI] Leaving race lobby');
+        hytopia.sendData({ type: 'leave-race-lobby' });
+        showScreen(multiplayerMenu);
+        playButtonSound();
+      });
+    }
+
+    // Team lobby controls
+    if (startTeamChallengeButton) {
+      startTeamChallengeButton.addEventListener('click', () => {
+        if (!startTeamChallengeButton.classList.contains('disabled')) {
+          console.log('[UI] Starting team challenge');
+          hytopia.sendData({ type: 'start-team-challenge' });
+          showScreen(gameHud);
+          playButtonSound();
+        }
+      });
+    }
+
+    if (leaveTeamButton) {
+      leaveTeamButton.addEventListener('click', () => {
+        console.log('[UI] Leaving team lobby');
+        hytopia.sendData({ type: 'leave-team-lobby' });
+        showScreen(multiplayerMenu);
+        playButtonSound();
+      });
+    }
+
+    // === ACCESSIBILITY EVENT HANDLERS ===
+    
+    // Initialize accessibility settings
+    initializeAccessibilitySettings();
+    
+    function initializeAccessibilitySettings() {
+      // Load saved settings
+      loadAccessibilitySettings();
+      
+      // Visual settings
+      if (colorblindToggle) {
+        colorblindToggle.addEventListener('change', (e) => {
+          console.log('[UI] Colorblind toggle:', e.target.checked);
+          applyColorblindMode(e.target.checked);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'colorblind', value: e.target.checked });
+        });
+      }
+      
+      if (highContrastToggle) {
+        highContrastToggle.addEventListener('change', (e) => {
+          console.log('[UI] High contrast toggle:', e.target.checked);
+          applyHighContrastMode(e.target.checked);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'highContrast', value: e.target.checked });
+        });
+      }
+      
+      if (textSizeSelect) {
+        textSizeSelect.addEventListener('change', (e) => {
+          console.log('[UI] Text size changed:', e.target.value);
+          applyTextSize(e.target.value);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'textSize', value: e.target.value });
+        });
+      }
+      
+      if (reducedMotionToggle) {
+        reducedMotionToggle.addEventListener('change', (e) => {
+          console.log('[UI] Reduced motion toggle:', e.target.checked);
+          applyReducedMotion(e.target.checked);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'reducedMotion', value: e.target.checked });
+        });
+      }
+      
+      // Audio settings
+      if (audioDescriptionsToggle) {
+        audioDescriptionsToggle.addEventListener('change', (e) => {
+          console.log('[UI] Audio descriptions toggle:', e.target.checked);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'audioDescriptions', value: e.target.checked });
+        });
+      }
+      
+      if (audioCuesToggle) {
+        audioCuesToggle.addEventListener('change', (e) => {
+          console.log('[UI] Audio cues toggle:', e.target.checked);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'audioCues', value: e.target.checked });
+        });
+      }
+      
+      if (soundVolumeSlider && soundVolumeValue) {
+        soundVolumeSlider.addEventListener('input', (e) => {
+          const value = e.target.value;
+          soundVolumeValue.textContent = `${value}%`;
+          console.log('[UI] Sound volume changed:', value);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'soundVolume', value: parseInt(value) });
+        });
+      }
+      
+      // Motor settings
+      if (oneHandedToggle) {
+        oneHandedToggle.addEventListener('change', (e) => {
+          console.log('[UI] One-handed mode toggle:', e.target.checked);
+          applyOneHandedMode(e.target.checked);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'oneHandedMode', value: e.target.checked });
+        });
+      }
+      
+      if (hapticFeedbackToggle) {
+        hapticFeedbackToggle.addEventListener('change', (e) => {
+          console.log('[UI] Haptic feedback toggle:', e.target.checked);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'hapticFeedback', value: e.target.checked });
+        });
+      }
+      
+      if (touchSensitivitySlider && touchSensitivityValue) {
+        touchSensitivitySlider.addEventListener('input', (e) => {
+          const value = e.target.value;
+          touchSensitivityValue.textContent = `${value}%`;
+          console.log('[UI] Touch sensitivity changed:', value);
+          saveAccessibilitySettings();
+          hytopia.sendData({ type: 'accessibility-setting', setting: 'touchSensitivity', value: parseInt(value) });
+        });
+      }
+      
+      // Action buttons
+      if (calibrateTouchButton) {
+        calibrateTouchButton.addEventListener('click', () => {
+          console.log('[UI] Starting touch calibration');
+          hytopia.sendData({ type: 'start-touch-calibration' });
+          playButtonSound();
+        });
+      }
+      
+      if (describeGameButton) {
+        describeGameButton.addEventListener('click', () => {
+          console.log('[UI] Describing game state');
+          hytopia.sendData({ type: 'describe-game-state' });
+          playButtonSound();
+        });
+      }
+      
+      if (resetAccessibilityButton) {
+        resetAccessibilityButton.addEventListener('click', () => {
+          console.log('[UI] Resetting accessibility settings');
+          resetAccessibilitySettings();
+          playButtonSound();
+        });
+      }
+    }
+
+    // Event listener for the Play Again button
+    playAgainButton.addEventListener('click', () => {
+      // console.log('[UI DEBUG] Play Again button clicked!'); // Added log
+      // console.log('[UI DEBUG] Sending restart-game data to server...'); // Added log
+      hytopia.sendData({ type: 'restart-game' });
+      showScreen(lobbyScreen);
+
+      // Play Game Over Sound (Consider if this sound should play on restart or only on game-over)
+      try {
+        const gameOverSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/game-over-voice.mp3';
+        // console.log('[UI DEBUG] Attempting to play game over sound on restart:', gameOverSoundPath); // Modified log
+        const gameOverSound = new Audio(gameOverSoundPath);
+        gameOverSound.play().catch(error => {
+          console.warn('Could not autoplay game over sound:', error); // Keep basic warning
+        });
+      } catch (error) {
+        console.error('Error creating or playing game over sound:', error); // Keep basic error
+      }
+    });
+
+    // --- Hytopia Data Listener ---
+    hytopia.onData(data => {
+      // console.log('[UI DEBUG] Received data from server:', data);
+
+      if (data.type === 'problem') {
+        problemNum1.textContent = data.num1;
+        // Change displayed operator based on received symbol
+        let displayOp = data.operation;
+        if (data.operation === '*') {
+          displayOp = 'x';
+        } else if (data.operation === '/') {
+          displayOp = '÷';
+        }
+        problemOp.textContent = displayOp; // Use the potentially modified symbol
+        problemNum2.textContent = data.num2;
+      }
+
+      if (data.type === 'game-over') {
+        finalScoreDisplay.textContent = `${data.score} / ${data.maxQuestions}`;
+        showScreen(endScreen);
+
+        // Play Game Over Sound
+        try {
+          const gameOverSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/game-over-voice.mp3';
+          // console.log('[UI DEBUG] Attempting to play game over sound (on game-over event):');
+          const gameOverSound = new Audio(gameOverSoundPath);
+          gameOverSound.play().catch(error => {
+            console.warn('Could not autoplay game over sound:', error); // Keep basic warning
+          });
+        } catch (error) {
+          console.error('Error creating or playing game over sound:', error); // Keep basic error
+        }
+      }
+
+      // Handle power-up events
+      if (data.type === 'power-up-collected') {
+        addPowerUpIndicator(data.powerUp);
+        // Special handling for rewind power-up
+        if (data.powerUp.name === 'Rewind') {
+          updateRewindButton(data.powerUp.uses);
+        }
+      }
+
+      if (data.type === 'power-up-activated') {
+        updatePowerUpIndicator(data.powerUp);
+      }
+
+      if (data.type === 'power-up-deactivated') {
+        removePowerUpIndicator(data.powerUp);
+      }
+
+      if (data.type === 'rewind-used') {
+        updateRewindUses(data.remainingUses);
+        updateRewindButton(data.remainingUses);
+        // Update score display if needed
+        if (finalScoreDisplay && data.newScore !== undefined) {
+          // Find score display in game HUD and update if it exists
+          // (This may need adjustment based on actual score display location)
+        }
+      }
+
+      // === MULTIPLAYER DATA HANDLERS ===
+      
+      // Race lobby updates
+      if (data.type === 'race-lobby-info') {
+        updateRaceLobby(data);
+      }
+      
+      if (data.type === 'race-player-joined') {
+        addPlayerToRaceLobby(data.player);
+      }
+      
+      if (data.type === 'race-player-left') {
+        removePlayerFromRaceLobby(data.player);
+      }
+      
+      // Team lobby updates
+      if (data.type === 'team-lobby-info') {
+        updateTeamLobby(data);
+      }
+      
+      if (data.type === 'team-player-joined') {
+        addPlayerToTeam(data.player, data.team);
+      }
+      
+      if (data.type === 'team-player-left') {
+        removePlayerFromTeam(data.player);
+      }
+      
+      // Leaderboard updates
+      if (data.type === 'leaderboard-data') {
+        updateLeaderboard(data);
+      }
+      
+      // Friends updates
+      if (data.type === 'friends-list') {
+        updateFriendsList(data.friends);
+      }
+      
+      if (data.type === 'friend-requests') {
+        updateFriendRequests(data.requests);
+      }
+      
+      if (data.type === 'player-profile') {
+        updatePlayerProfile(data.profile);
+      }
+
+      // ===== LOBBY SYSTEM HANDLERS =====
+
+      // Show lobby screen with stats
+      if (data.type === 'lobby-stats') {
+        console.log('[UI] Received lobby stats:', data);
+        if (lobbyPlayerName) lobbyPlayerName.textContent = data.username || 'Player';
+        if (lobbyPlayerLevel) lobbyPlayerLevel.textContent = 'Level ' + (data.level || 1);
+        if (lobbyTotalScore) lobbyTotalScore.textContent = formatNumber(data.totalScore || 0);
+        if (lobbyGamesPlayed) lobbyGamesPlayed.textContent = data.gamesPlayed || 0;
+        if (lobbyHighScore) lobbyHighScore.textContent = formatNumber(data.highScore || 0);
+        showScreen(lobbyScreen);
+      }
+
+      // Update selection phase display
+      if (data.type === 'selection-phase') {
+        console.log('[UI] Selection phase:', data);
+        if (lobbySelectionHeader) {
+          lobbySelectionHeader.className = 'lobby-selection-header ' + (data.phase || 'mode');
+        }
+        if (lobbySelectionTitle) lobbySelectionTitle.textContent = data.title || 'Choose';
+        if (lobbySelectionSubtitle) lobbySelectionSubtitle.textContent = data.subtitle || 'Fall onto your choice!';
+
+        // Update options display
+        if (lobbyOptions && data.options) {
+          lobbyOptions.innerHTML = data.options.map(opt =>
+            `<div class="lobby-option">${opt}</div>`
+          ).join('');
+        }
+
+        // Make sure lobby screen is visible
+        showScreen(lobbyScreen);
+      }
+
+      // Selection complete - game starting
+      if (data.type === 'selection-complete') {
+        console.log('[UI] Selection complete:', data);
+        showScreen(gameHud);
+      }
+
+      // Question display for educational game (not just math)
+      if (data.type === 'question') {
+        console.log('[UI] Received question:', data);
+        // Update problem display for any subject
+        const problemContainer = document.getElementById('problem-container');
+        if (problemContainer) {
+          if (data.questionText) {
+            // For text-based questions (spelling, geography, etc.)
+            problemContainer.innerHTML = `<span class="question-text">${data.questionText}</span>`;
+          } else if (data.num1 !== undefined) {
+            // For math questions (backward compatibility)
+            let displayOp = data.operation;
+            if (data.operation === '*') displayOp = 'x';
+            else if (data.operation === '/') displayOp = '÷';
+            problemContainer.innerHTML = `
+              <span id="problem-num1">${data.num1}</span>
+              <span id="problem-op">${displayOp}</span>
+              <span id="problem-num2">${data.num2}</span>
+            `;
+          }
+        }
+        showScreen(gameHud);
+      }
+
+      // Return to lobby
+      if (data.type === 'return-to-lobby') {
+        console.log('[UI] Returning to lobby');
+        showScreen(lobbyScreen);
+      }
+
+      // Enhanced notification handling
+      handleServerNotification(data);
+    });
+
+    // --- Power-up UI Functions ---
+    const powerUpIndicators = document.getElementById('powerup-indicators');
+    const activePowerUps = new Map(); // Track active power-ups
+
+    function addPowerUpIndicator(powerUp) {
+      if (!powerUpIndicators) return;
+
+      const indicator = document.createElement('div');
+      indicator.className = `powerup-indicator powerup-${powerUp.name.toLowerCase().replace(/\s+/g, '')}`;
+      indicator.id = `powerup-${powerUp.name.toLowerCase().replace(/\s+/g, '')}`;
+
+      // Icon mapping
+      const iconMap = {
+        'slowmotion': '⏳',
+        'shield': '🛡️',
+        'magnet': '🧲',
+        'doublepoints': '💰',
+        'rewind': '⏪'
+      };
+
+      const iconKey = powerUp.icon || powerUp.name.toLowerCase().replace(/\s+/g, '');
+      const icon = iconMap[iconKey] || '⚡';
+
+      indicator.innerHTML = `
+        <span class="powerup-icon">${icon}</span>
+        <span class="powerup-name">${powerUp.name}</span>
+        ${powerUp.uses ? `<span class="powerup-uses">${powerUp.uses}</span>` : 
+          powerUp.duration > 0 ? `<span class="powerup-timer" id="timer-${indicator.id}">--</span>` : ''}
+      `;
+
+      powerUpIndicators.appendChild(indicator);
+      activePowerUps.set(powerUp.name, { element: indicator, ...powerUp });
+
+      // Start timer for timed power-ups
+      if (powerUp.duration > 0) {
+        startPowerUpTimer(powerUp.name, powerUp.duration);
+      }
+
+      console.log(`[UI] Added power-up indicator: ${powerUp.name}`);
+    }
+
+    function updatePowerUpIndicator(powerUp) {
+      const active = activePowerUps.get(powerUp.name);
+      if (active && active.element) {
+        // Update timer if it's a timed power-up
+        if (powerUp.duration > 0) {
+          startPowerUpTimer(powerUp.name, powerUp.duration);
+        }
+      } else {
+        // If not already shown, add it
+        addPowerUpIndicator(powerUp);
+      }
+    }
+
+    function removePowerUpIndicator(powerUpName) {
+      const active = activePowerUps.get(powerUpName);
+      if (active && active.element) {
+        active.element.classList.add('expired');
+        setTimeout(() => {
+          if (active.element.parentNode) {
+            active.element.parentNode.removeChild(active.element);
+          }
+          activePowerUps.delete(powerUpName);
+        }, 300); // Match animation duration
+        console.log(`[UI] Removed power-up indicator: ${powerUpName}`);
+      }
+    }
+
+    function updateRewindUses(remainingUses) {
+      const rewindIndicator = activePowerUps.get('Rewind');
+      if (rewindIndicator && rewindIndicator.element) {
+        const usesElement = rewindIndicator.element.querySelector('.powerup-uses');
+        if (usesElement) {
+          usesElement.textContent = remainingUses;
+          if (remainingUses === 0) {
+            // Remove the indicator when no uses left
+            removePowerUpIndicator('Rewind');
+          }
+        }
+      }
+    }
+
+    function startPowerUpTimer(powerUpName, duration) {
+      const active = activePowerUps.get(powerUpName);
+      if (!active || !active.element) return;
+
+      const timerElement = active.element.querySelector('.powerup-timer');
+      if (!timerElement) return;
+
+      const startTime = Date.now();
+      const endTime = startTime + duration;
+
+      // Clear any existing timer
+      if (active.timerId) {
+        clearInterval(active.timerId);
+      }
+
+      active.timerId = setInterval(() => {
+        const now = Date.now();
+        const remaining = Math.max(0, endTime - now);
+        const seconds = Math.ceil(remaining / 1000);
+
+        if (seconds > 0) {
+          timerElement.textContent = `${seconds}s`;
+        } else {
+          timerElement.textContent = '0s';
+          clearInterval(active.timerId);
+          // The power-up will be removed by the server deactivation event
+        }
+      }, 100);
+
+      activePowerUps.set(powerUpName, active);
+    }
+    
+    // --- Rewind Button Functions ---
+    const rewindButton = document.getElementById('rewind-button');
+    let rewindUsesAvailable = 0;
+    
+    function updateRewindButton(uses) {
+      if (!rewindButton) return;
+      
+      rewindUsesAvailable = uses;
+      const countElement = rewindButton.querySelector('.rewind-count');
+      if (countElement) {
+        countElement.textContent = uses;
+      }
+      
+      if (uses > 0) {
+        rewindButton.style.display = 'flex';
+        rewindButton.classList.add('available');
+        rewindButton.classList.remove('disabled');
+      } else {
+        rewindButton.style.display = 'none';
+        rewindButton.classList.remove('available');
+        rewindButton.classList.add('disabled');
+      }
+    }
+    
+    // Setup rewind button click handler
+    if (rewindButton) {
+      rewindButton.addEventListener('click', () => {
+        if (rewindUsesAvailable > 0 && !rewindButton.classList.contains('disabled')) {
+          // Send rewind request to server
+          hytopia.sendData({ 
+            type: 'use-rewind'
+          });
+          console.log('[UI] Rewind button clicked');
+        }
+      });
+      
+      // Add keyboard shortcut (R key)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'r' || e.key === 'R') {
+          if (rewindUsesAvailable > 0 && gameScreen.style.display === 'block') {
+            hytopia.sendData({ 
+              type: 'use-rewind'
+            });
+            console.log('[UI] Rewind activated via R key');
+          }
+        }
+      });
+    }
+
+    // --- Mobile Controls ---
+    // Helper function to handle touch events for mobile controls
+    function setupMobileTouchControl(element, keyCode, display) {
+      if (!element) {
+        console.error(`[UI Error] Mobile control element for ${keyCode} not found`);
+        return;
+      }
+      
+      element.addEventListener('touchstart', e => {
+        e.preventDefault();
+        element.classList.add('active');
+        hytopia.pressInput(keyCode, true);
+        if (display) console.log(`[UI] Mobile ${display} pressed`);
+      });
+      
+      element.addEventListener('touchend', e => {
+        e.preventDefault();
+        element.classList.remove('active');
+        hytopia.pressInput(keyCode, false);
+        if (display) console.log(`[UI] Mobile ${display} released`);
+      });
+      
+      // Handle touch cancel (e.g. if notification appears)
+      element.addEventListener('touchcancel', e => {
+        e.preventDefault();
+        element.classList.remove('active');
+        hytopia.pressInput(keyCode, false);
+      });
+    }
+    
+    // Set up directional controls
+    setupMobileTouchControl(mobileUpButton, 'w', 'up');
+    setupMobileTouchControl(mobileLeftButton, 'a', 'left');
+    setupMobileTouchControl(mobileDownButton, 's', 'down');
+    setupMobileTouchControl(mobileRightButton, 'd', 'right');
+
+    // Set up look down button - Force camera to look down
+    const mobileLookDownButton = document.getElementById('mobile-look-down');
+    if (mobileLookDownButton) {
+      // Handle the look down button - Focus the view downward when pressed
+      mobileLookDownButton.addEventListener('touchstart', e => {
+        e.preventDefault();
+        mobileLookDownButton.classList.add('active');
+        
+        // Send multiple inputs to force looking down
+        // The page down key (to look down in many games)
+        hytopia.pressInput('Page_Down', true);
+        
+        // Also send 'l' key as an additional way to trigger camera adjustment
+        hytopia.pressInput('l', true);
+        
+        console.log('[UI] Mobile look down activated');
+        
+        // Create a visual feedback element to show the player is looking down
+        const feedback = document.createElement('div');
+        feedback.className = 'look-down-feedback';
+        feedback.style.position = 'fixed';
+        feedback.style.top = '50%';
+        feedback.style.left = '50%';
+        feedback.style.transform = 'translate(-50%, -50%)';
+        feedback.style.padding = '10px 20px';
+        feedback.style.background = 'rgba(0, 0, 0, 0.7)';
+        feedback.style.color = 'white';
+        feedback.style.borderRadius = '5px';
+        feedback.style.zIndex = '1000';
+        feedback.textContent = 'Looking Down';
+        document.body.appendChild(feedback);
+        
+        // Remove the feedback after a short delay
+        setTimeout(() => {
+          if (feedback.parentNode) {
+            feedback.parentNode.removeChild(feedback);
+          }
+        }, 2000);
+      });
+      
+      mobileLookDownButton.addEventListener('touchend', e => {
+        e.preventDefault();
+        mobileLookDownButton.classList.remove('active');
+        hytopia.pressInput('Page_Down', false);
+        hytopia.pressInput('l', false);
+        console.log('[UI] Mobile look down released');
+      });
+      
+      mobileLookDownButton.addEventListener('touchcancel', e => {
+        e.preventDefault();
+        mobileLookDownButton.classList.remove('active');
+        hytopia.pressInput('Page_Down', false);
+        hytopia.pressInput('l', false);
+      });
+    } else {
+      console.error('[UI Error] Mobile look down button not found');
+    }
+
+    // === UTILITY FUNCTIONS ===
+    
+    // Play button click sound
+    function playButtonSound() {
+      try {
+        const buttonSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/button-click.mp3';
+        const buttonSound = new Audio(buttonSoundPath);
+        buttonSound.volume = 0.3;
+        buttonSound.play().catch(error => {
+          console.warn('Could not play button sound:', error);
+        });
+      } catch (error) {
+        console.warn('Error creating button sound:', error);
+      }
+    }
+
+    // === MULTIPLAYER INITIALIZATION FUNCTIONS ===
+    
+    function initializeRaceLobby() {
+      const sessionId = document.getElementById('race-session-id');
+      const playerCount = document.getElementById('race-player-count');
+      const playersList = document.getElementById('race-players-list');
+      
+      if (sessionId) sessionId.textContent = 'Loading...';
+      if (playerCount) playerCount.textContent = '1';
+      if (playersList) playersList.innerHTML = '<div class="loading">Connecting to race lobby...</div>';
+      
+      // Request initial lobby data
+      hytopia.sendData({ type: 'request-race-lobby-info' });
+    }
+
+    function initializeTeamLobby() {
+      const redTeamMembers = document.querySelector('#red-team .team-members');
+      const blueTeamMembers = document.querySelector('#blue-team .team-members');
+      
+      if (redTeamMembers) redTeamMembers.innerHTML = '<div class="loading">Loading team info...</div>';
+      if (blueTeamMembers) blueTeamMembers.innerHTML = '<div class="loading">Loading team info...</div>';
+      
+      // Setup team join buttons
+      setupTeamJoinButtons();
+      
+      // Request initial team data
+      hytopia.sendData({ type: 'request-team-lobby-info' });
+    }
+
+    function setupTeamJoinButtons() {
+      const joinButtons = document.querySelectorAll('.join-team-button');
+      joinButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          const team = e.target.getAttribute('data-team');
+          console.log(`[UI] Joining ${team} team`);
+          hytopia.sendData({ type: 'join-team', team: team });
+          playButtonSound();
+        });
+      });
+    }
+
+    function initializeLeaderboards() {
+      const leaderboardEntries = document.getElementById('leaderboard-entries');
+      const playerRank = document.getElementById('player-rank');
+      
+      if (leaderboardEntries) leaderboardEntries.innerHTML = '<div class="loading">Loading leaderboard data...</div>';
+      if (playerRank) playerRank.textContent = 'Loading...';
+      
+      // Setup leaderboard tabs
+      setupLeaderboardTabs();
+    }
+
+    function setupLeaderboardTabs() {
+      const tabs = document.querySelectorAll('.leaderboard-tabs .tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          // Remove active class from all tabs
+          tabs.forEach(t => t.classList.remove('active'));
+          // Add active class to clicked tab
+          e.target.classList.add('active');
+          
+          const category = e.target.getAttribute('data-type');
+          console.log(`[UI] Switching to ${category} leaderboard`);
+          hytopia.sendData({ type: 'request-leaderboard-data', category: category });
+          playButtonSound();
+        });
+      });
+    }
+
+    function initializeFriendsScreen() {
+      const friendsList = document.getElementById('friends-list');
+      const friendRequests = document.getElementById('friend-requests');
+      
+      if (friendsList) friendsList.innerHTML = '<div class="loading">Loading friends...</div>';
+      if (friendRequests) friendRequests.innerHTML = '<div class="loading">Loading friend requests...</div>';
+      
+      // Setup friends tabs
+      setupFriendsTabs();
+    }
+
+    function setupFriendsTabs() {
+      const tabs = document.querySelectorAll('.friends-tabs .tab');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          // Remove active class from all tabs
+          tabs.forEach(t => t.classList.remove('active'));
+          // Add active class to clicked tab
+          e.target.classList.add('active');
+          
+          const type = e.target.getAttribute('data-type');
+          console.log(`[UI] Switching to ${type} tab`);
+          showFriendsContent(type);
+          playButtonSound();
+        });
+      });
+    }
+
+    function showFriendsContent(type) {
+      const friendsList = document.getElementById('friends-list');
+      const friendRequests = document.getElementById('friend-requests');
+      const playerProfile = document.getElementById('player-profile');
+      
+      // Hide all content
+      if (friendsList) friendsList.style.display = 'none';
+      if (friendRequests) friendRequests.style.display = 'none';
+      if (playerProfile) playerProfile.style.display = 'none';
+      
+      // Show selected content
+      switch(type) {
+        case 'friends':
+          if (friendsList) friendsList.style.display = 'block';
+          break;
+        case 'requests':
+          if (friendRequests) friendRequests.style.display = 'block';
+          break;
+        case 'profile':
+          if (playerProfile) {
+            playerProfile.style.display = 'block';
+            playerProfile.innerHTML = '<div class="loading">Loading profile...</div>';
+          }
+          hytopia.sendData({ type: 'request-player-profile' });
+          break;
+      }
+    }
+
+    // === MULTIPLAYER DATA UPDATE FUNCTIONS ===
+    
+    function updateRaceLobby(data) {
+      const sessionId = document.getElementById('race-session-id');
+      const playerCount = document.getElementById('race-player-count');
+      const playersList = document.getElementById('race-players-list');
+      const startButton = document.getElementById('start-race-button');
+      
+      if (sessionId) sessionId.textContent = data.sessionId || 'Unknown';
+      if (playerCount) playerCount.textContent = data.playerCount || '0';
+      
+      if (playersList && data.players) {
+        playersList.innerHTML = '';
+        data.players.forEach(player => {
+          const playerDiv = document.createElement('div');
+          playerDiv.className = 'race-player-item';
+          playerDiv.innerHTML = `
+            <span class="player-name">${player.username}</span>
+            <span class="player-status ${player.ready ? 'ready' : 'not-ready'}">${player.ready ? 'Ready' : 'Not Ready'}</span>
+          `;
+          playersList.appendChild(playerDiv);
+        });
+      }
+      
+      // Enable/disable start button based on ready status
+      if (startButton) {
+        const canStart = data.canStart || false;
+        if (canStart) {
+          startButton.classList.remove('disabled');
+        } else {
+          startButton.classList.add('disabled');
+        }
+      }
+    }
+    
+    function addPlayerToRaceLobby(player) {
+      const playersList = document.getElementById('race-players-list');
+      const playerCount = document.getElementById('race-player-count');
+      
+      if (playersList) {
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'race-player-item';
+        playerDiv.id = `race-player-${player.username}`;
+        playerDiv.innerHTML = `
+          <span class="player-name">${player.username}</span>
+          <span class="player-status not-ready">Not Ready</span>
+        `;
+        playersList.appendChild(playerDiv);
+      }
+      
+      if (playerCount) {
+        const current = parseInt(playerCount.textContent) || 0;
+        playerCount.textContent = (current + 1).toString();
+      }
+    }
+    
+    function removePlayerFromRaceLobby(player) {
+      const playerElement = document.getElementById(`race-player-${player.username}`);
+      const playerCount = document.getElementById('race-player-count');
+      
+      if (playerElement) {
+        playerElement.remove();
+      }
+      
+      if (playerCount) {
+        const current = parseInt(playerCount.textContent) || 0;
+        playerCount.textContent = Math.max(0, current - 1).toString();
+      }
+    }
+    
+    function updateTeamLobby(data) {
+      const redTeamMembers = document.querySelector('#red-team .team-members');
+      const blueTeamMembers = document.querySelector('#blue-team .team-members');
+      const startButton = document.getElementById('start-team-challenge-button');
+      
+      if (redTeamMembers && data.redTeam) {
+        redTeamMembers.innerHTML = '';
+        data.redTeam.forEach(player => {
+          const playerDiv = document.createElement('div');
+          playerDiv.className = 'team-member';
+          playerDiv.textContent = player.username;
+          redTeamMembers.appendChild(playerDiv);
+        });
+      }
+      
+      if (blueTeamMembers && data.blueTeam) {
+        blueTeamMembers.innerHTML = '';
+        data.blueTeam.forEach(player => {
+          const playerDiv = document.createElement('div');
+          playerDiv.className = 'team-member';
+          playerDiv.textContent = player.username;
+          blueTeamMembers.appendChild(playerDiv);
+        });
+      }
+      
+      // Enable/disable start button
+      if (startButton) {
+        const canStart = data.canStart || false;
+        if (canStart) {
+          startButton.classList.remove('disabled');
+        } else {
+          startButton.classList.add('disabled');
+        }
+      }
+    }
+    
+    function addPlayerToTeam(player, team) {
+      const teamMembers = document.querySelector(`#${team}-team .team-members`);
+      if (teamMembers) {
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'team-member';
+        playerDiv.id = `team-player-${player.username}`;
+        playerDiv.textContent = player.username;
+        teamMembers.appendChild(playerDiv);
+      }
+    }
+    
+    function removePlayerFromTeam(player) {
+      const playerElement = document.getElementById(`team-player-${player.username}`);
+      if (playerElement) {
+        playerElement.remove();
+      }
+    }
+    
+    function updateLeaderboard(data) {
+      const leaderboardEntries = document.getElementById('leaderboard-entries');
+      const playerRank = document.getElementById('player-rank');
+      
+      if (leaderboardEntries && data.entries) {
+        leaderboardEntries.innerHTML = '';
+        data.entries.forEach((entry, index) => {
+          const entryDiv = document.createElement('div');
+          entryDiv.className = 'leaderboard-entry';
+          entryDiv.innerHTML = `
+            <span class="rank">#${index + 1}</span>
+            <span class="player-name">${entry.username}</span>
+            <span class="score">${entry.score}</span>
+          `;
+          leaderboardEntries.appendChild(entryDiv);
+        });
+      }
+      
+      if (playerRank && data.playerRank) {
+        playerRank.textContent = `#${data.playerRank}`;
+      }
+    }
+    
+    function updateFriendsList(friends) {
+      const friendsList = document.getElementById('friends-list');
+      if (friendsList && friends) {
+        friendsList.innerHTML = '';
+        friends.forEach(friend => {
+          const friendDiv = document.createElement('div');
+          friendDiv.className = 'friend-item';
+          friendDiv.innerHTML = `
+            <span class="friend-name">${friend.username}</span>
+            <span class="friend-status ${friend.online ? 'online' : 'offline'}">${friend.online ? 'Online' : 'Offline'}</span>
+            <button class="friend-action-btn" onclick="inviteFriend('${friend.username}')">Invite</button>
+          `;
+          friendsList.appendChild(friendDiv);
+        });
+      }
+    }
+    
+    function updateFriendRequests(requests) {
+      const friendRequests = document.getElementById('friend-requests');
+      if (friendRequests && requests) {
+        friendRequests.innerHTML = '';
+        requests.forEach(request => {
+          const requestDiv = document.createElement('div');
+          requestDiv.className = 'request-item';
+          requestDiv.innerHTML = `
+            <span class="requester-name">${request.username}</span>
+            <div class="request-actions">
+              <button class="accept-btn" onclick="acceptFriendRequest('${request.username}')">Accept</button>
+              <button class="decline-btn" onclick="declineFriendRequest('${request.username}')">Decline</button>
+            </div>
+          `;
+          friendRequests.appendChild(requestDiv);
+        });
+      }
+    }
+    
+    function updatePlayerProfile(profile) {
+      const playerProfile = document.getElementById('player-profile');
+      if (playerProfile && profile) {
+        playerProfile.innerHTML = `
+          <div class="profile-header">
+            <h3>${profile.username}</h3>
+            <div class="profile-stats">
+              <div class="stat">
+                <span class="stat-label">Total Score:</span>
+                <span class="stat-value">${profile.totalScore || 0}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Games Played:</span>
+                <span class="stat-value">${profile.gamesPlayed || 0}</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Best Streak:</span>
+                <span class="stat-value">${profile.bestStreak || 0}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+    
+    // === GLOBAL FRIEND FUNCTIONS ===
+    window.inviteFriend = function(username) {
+      console.log(`[UI] Inviting friend: ${username}`);
+      hytopia.sendData({ type: 'invite-friend', username: username });
+      playButtonSound();
+    };
+    
+    window.acceptFriendRequest = function(username) {
+      console.log(`[UI] Accepting friend request from: ${username}`);
+      hytopia.sendData({ type: 'accept-friend-request', username: username });
+      playButtonSound();
+    };
+    
+    window.declineFriendRequest = function(username) {
+      console.log(`[UI] Declining friend request from: ${username}`);
+      hytopia.sendData({ type: 'decline-friend-request', username: username });
+      playButtonSound();
+    };
+
+    // === ACCESSIBILITY IMPLEMENTATION FUNCTIONS ===
+    
+    function loadAccessibilitySettings() {
+      try {
+        const settings = localStorage.getItem('freefall-accessibility-settings');
+        if (settings) {
+          const parsed = JSON.parse(settings);
+          
+          // Apply loaded settings to UI elements
+          if (colorblindToggle && parsed.colorblind !== undefined) {
+            colorblindToggle.checked = parsed.colorblind;
+            applyColorblindMode(parsed.colorblind);
+          }
+          
+          if (highContrastToggle && parsed.highContrast !== undefined) {
+            highContrastToggle.checked = parsed.highContrast;
+            applyHighContrastMode(parsed.highContrast);
+          }
+          
+          if (textSizeSelect && parsed.textSize) {
+            textSizeSelect.value = parsed.textSize;
+            applyTextSize(parsed.textSize);
+          }
+          
+          if (reducedMotionToggle && parsed.reducedMotion !== undefined) {
+            reducedMotionToggle.checked = parsed.reducedMotion;
+            applyReducedMotion(parsed.reducedMotion);
+          }
+          
+          if (audioDescriptionsToggle && parsed.audioDescriptions !== undefined) {
+            audioDescriptionsToggle.checked = parsed.audioDescriptions;
+          }
+          
+          if (audioCuesToggle && parsed.audioCues !== undefined) {
+            audioCuesToggle.checked = parsed.audioCues;
+          }
+          
+          if (soundVolumeSlider && parsed.soundVolume !== undefined) {
+            soundVolumeSlider.value = parsed.soundVolume;
+            if (soundVolumeValue) soundVolumeValue.textContent = `${parsed.soundVolume}%`;
+          }
+          
+          if (oneHandedToggle && parsed.oneHandedMode !== undefined) {
+            oneHandedToggle.checked = parsed.oneHandedMode;
+            applyOneHandedMode(parsed.oneHandedMode);
+          }
+          
+          if (hapticFeedbackToggle && parsed.hapticFeedback !== undefined) {
+            hapticFeedbackToggle.checked = parsed.hapticFeedback;
+          }
+          
+          if (touchSensitivitySlider && parsed.touchSensitivity !== undefined) {
+            touchSensitivitySlider.value = parsed.touchSensitivity;
+            if (touchSensitivityValue) touchSensitivityValue.textContent = `${parsed.touchSensitivity}%`;
+          }
+          
+          console.log('[UI] Loaded accessibility settings:', parsed);
+        }
+      } catch (error) {
+        console.warn('[UI] Failed to load accessibility settings:', error);
+      }
+    }
+    
+    function saveAccessibilitySettings() {
+      try {
+        const settings = {
+          colorblind: colorblindToggle ? colorblindToggle.checked : false,
+          highContrast: highContrastToggle ? highContrastToggle.checked : false,
+          textSize: textSizeSelect ? textSizeSelect.value : 'medium',
+          reducedMotion: reducedMotionToggle ? reducedMotionToggle.checked : false,
+          audioDescriptions: audioDescriptionsToggle ? audioDescriptionsToggle.checked : false,
+          audioCues: audioCuesToggle ? audioCuesToggle.checked : true,
+          soundVolume: soundVolumeSlider ? parseInt(soundVolumeSlider.value) : 70,
+          oneHandedMode: oneHandedToggle ? oneHandedToggle.checked : false,
+          hapticFeedback: hapticFeedbackToggle ? hapticFeedbackToggle.checked : true,
+          touchSensitivity: touchSensitivitySlider ? parseInt(touchSensitivitySlider.value) : 100
+        };
+        
+        localStorage.setItem('freefall-accessibility-settings', JSON.stringify(settings));
+        console.log('[UI] Saved accessibility settings:', settings);
+      } catch (error) {
+        console.warn('[UI] Failed to save accessibility settings:', error);
+      }
+    }
+    
+    function applyColorblindMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('colorblind-mode');
+        // Apply colorblind-friendly color scheme
+        const style = document.createElement('style');
+        style.id = 'colorblind-styles';
+        style.textContent = `
+          .colorblind-mode .correct { background-color: #0066cc !important; }
+          .colorblind-mode .incorrect { background-color: #cc6600 !important; }
+          .colorblind-mode .warning { background-color: #ffcc00 !important; color: #000 !important; }
+          .colorblind-mode #beginner-button { background-color: #0066cc !important; }
+          .colorblind-mode #moderate-button { background-color: #ffcc00 !important; color: #000 !important; }
+          .colorblind-mode #hard-button { background-color: #cc6600 !important; }
+        `;
+        document.head.appendChild(style);
+      } else {
+        document.body.classList.remove('colorblind-mode');
+        const existingStyle = document.getElementById('colorblind-styles');
+        if (existingStyle) existingStyle.remove();
+      }
+    }
+    
+    function applyHighContrastMode(enabled) {
+      if (enabled) {
+        document.body.classList.add('high-contrast');
+      } else {
+        document.body.classList.remove('high-contrast');
+      }
+    }
+    
+    function applyTextSize(size) {
+      // Remove existing text size classes
+      document.body.classList.remove('text-small', 'text-medium', 'text-large', 'text-extra-large');
+      
+      // Add new text size class
+      document.body.classList.add(`text-${size}`);
+      
+      // Apply text size multipliers
+      const multipliers = {
+        'small': 0.8,
+        'medium': 1.0,
+        'large': 1.3,
+        'extra-large': 1.6
+      };
+      
+      const multiplier = multipliers[size] || 1.0;
+      const style = document.createElement('style');
+      style.id = 'text-size-styles';
+      
+      // Remove existing text size styles
+      const existing = document.getElementById('text-size-styles');
+      if (existing) existing.remove();
+      
+      style.textContent = `
+        body.text-${size} { font-size: ${16 * multiplier}px !important; }
+        body.text-${size} .button { font-size: ${20 * multiplier}px !important; }
+        body.text-${size} #problem-container { font-size: ${48 * multiplier}px !important; }
+        body.text-${size} h1 { font-size: ${48 * multiplier}px !important; }
+        body.text-${size} h2 { font-size: ${32 * multiplier}px !important; }
+        body.text-${size} h3 { font-size: ${24 * multiplier}px !important; }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    function applyReducedMotion(enabled) {
+      if (enabled) {
+        document.body.classList.add('reduced-motion');
+      } else {
+        document.body.classList.remove('reduced-motion');
+      }
+    }
+    
+    function applyOneHandedMode(enabled) {
+      const mobileControls = document.querySelector('.mobile-controls');
+      if (mobileControls) {
+        if (enabled) {
+          mobileControls.classList.add('one-handed-mode');
+        } else {
+          mobileControls.classList.remove('one-handed-mode');
+        }
+      }
+    }
+    
+    function resetAccessibilitySettings() {
+      // Reset all toggles to default values
+      if (colorblindToggle) {
+        colorblindToggle.checked = false;
+        applyColorblindMode(false);
+      }
+      
+      if (highContrastToggle) {
+        highContrastToggle.checked = false;
+        applyHighContrastMode(false);
+      }
+      
+      if (textSizeSelect) {
+        textSizeSelect.value = 'medium';
+        applyTextSize('medium');
+      }
+      
+      if (reducedMotionToggle) {
+        reducedMotionToggle.checked = false;
+        applyReducedMotion(false);
+      }
+      
+      if (audioDescriptionsToggle) audioDescriptionsToggle.checked = false;
+      if (audioCuesToggle) audioCuesToggle.checked = true;
+      
+      if (soundVolumeSlider && soundVolumeValue) {
+        soundVolumeSlider.value = 70;
+        soundVolumeValue.textContent = '70%';
+      }
+      
+      if (oneHandedToggle) {
+        oneHandedToggle.checked = false;
+        applyOneHandedMode(false);
+      }
+      
+      if (hapticFeedbackToggle) hapticFeedbackToggle.checked = true;
+      
+      if (touchSensitivitySlider && touchSensitivityValue) {
+        touchSensitivitySlider.value = 100;
+        touchSensitivityValue.textContent = '100%';
+      }
+      
+      // Save the reset settings
+      saveAccessibilitySettings();
+      
+      // Notify server
+      hytopia.sendData({ type: 'reset-accessibility-settings' });
+      
+      console.log('[UI] Reset all accessibility settings to defaults');
+    }
+
+    // === ERROR NOTIFICATION SYSTEM ===
+    
+    function showErrorNotification(message, duration = 5000) {
+      const container = document.getElementById('error-notification-container');
+      if (!container) return;
+      
+      const notification = document.createElement('div');
+      notification.className = 'error-notification';
+      notification.innerHTML = `
+        <button class="notification-close" onclick="dismissNotification(this.parentElement)">×</button>
+        <div class="notification-message">${message}</div>
+      `;
+      
+      // Add click to dismiss
+      notification.addEventListener('click', () => {
+        dismissNotification(notification);
+      });
+      
+      container.appendChild(notification);
+      
+      // Auto-dismiss after duration
+      setTimeout(() => {
+        if (notification.parentElement) {
+          dismissNotification(notification);
+        }
+      }, duration);
+      
+      console.log('[UI] Showing error notification:', message);
+    }
+    
+    function showSuccessNotification(message, duration = 3000) {
+      const container = document.getElementById('success-notification-container');
+      if (!container) return;
+      
+      const notification = document.createElement('div');
+      notification.className = 'success-notification';
+      notification.innerHTML = `
+        <button class="notification-close" onclick="dismissNotification(this.parentElement)">×</button>
+        <div class="notification-message">${message}</div>
+      `;
+      
+      // Add click to dismiss
+      notification.addEventListener('click', () => {
+        dismissNotification(notification);
+      });
+      
+      container.appendChild(notification);
+      
+      // Auto-dismiss after duration
+      setTimeout(() => {
+        if (notification.parentElement) {
+          dismissNotification(notification);
+        }
+      }, duration);
+      
+      console.log('[UI] Showing success notification:', message);
+    }
+    
+    window.dismissNotification = function(notification) {
+      if (!notification || !notification.parentElement) return;
+      
+      notification.classList.add('dismissing');
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.parentElement.removeChild(notification);
+        }
+      }, 300); // Match animation duration
+    };
+    
+    // Enhanced data handler for notifications
+    function handleServerNotification(data) {
+      if (data.type === 'error') {
+        showErrorNotification(data.message || 'An error occurred');
+      } else if (data.type === 'success') {
+        showSuccessNotification(data.message || 'Success!');
+      } else if (data.type === 'info') {
+        showSuccessNotification(data.message || 'Information', 4000);
+      }
+    }
+
+    // === KEYBOARD NAVIGATION SUPPORT ===
+    
+    let currentFocusedButton = null;
+    let focusableElements = [];
+    
+    function initializeKeyboardNavigation() {
+      // Update focusable elements when screen changes
+      updateFocusableElements();
+      
+      // Global keyboard event listener
+      document.addEventListener('keydown', handleKeyboardNavigation);
+      
+      console.log('[UI] Keyboard navigation initialized');
+    }
+    
+    function updateFocusableElements() {
+      // Get all focusable elements in the current active screen
+      const activeScreen = document.querySelector('.screen.active');
+      if (!activeScreen) return;
+      
+      focusableElements = Array.from(activeScreen.querySelectorAll(
+        'button, .button, input, select, [tabindex]:not([tabindex="-1"])'
+      )).filter(el => {
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden' && !el.disabled;
+      });
+      
+      // Add tab index to buttons that don't have it
+      focusableElements.forEach((el, index) => {
+        if (!el.hasAttribute('tabindex')) {
+          el.setAttribute('tabindex', '0');
+        }
+      });
+    }
+    
+    function handleKeyboardNavigation(e) {
+      // Update focusable elements on each keypress (in case UI changed)
+      updateFocusableElements();
+      
+      if (focusableElements.length === 0) return;
+      
+      let currentIndex = currentFocusedButton ? focusableElements.indexOf(currentFocusedButton) : -1;
+      
+      switch(e.key) {
+        case 'Tab':
+          e.preventDefault();
+          if (e.shiftKey) {
+            // Previous element
+            currentIndex = currentIndex <= 0 ? focusableElements.length - 1 : currentIndex - 1;
+          } else {
+            // Next element
+            currentIndex = currentIndex >= focusableElements.length - 1 ? 0 : currentIndex + 1;
+          }
+          focusElement(focusableElements[currentIndex]);
+          break;
+          
+        case 'ArrowDown':
+          e.preventDefault();
+          currentIndex = currentIndex >= focusableElements.length - 1 ? 0 : currentIndex + 1;
+          focusElement(focusableElements[currentIndex]);
+          break;
+          
+        case 'ArrowUp':
+          e.preventDefault();
+          currentIndex = currentIndex <= 0 ? focusableElements.length - 1 : currentIndex - 1;
+          focusElement(focusableElements[currentIndex]);
+          break;
+          
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          if (currentFocusedButton) {
+            if (currentFocusedButton.tagName === 'BUTTON' || currentFocusedButton.classList.contains('button')) {
+              currentFocusedButton.click();
+              playButtonSound();
+            }
+          }
+          break;
+          
+        case 'Escape':
+          e.preventDefault();
+          // Go back to previous screen or close current overlay
+          if (document.querySelector('#multiplayer-menu.active')) {
+            showScreen(lobbyScreen);
+          } else if (document.querySelector('#accessibility-menu.active')) {
+            showScreen(lobbyScreen);
+          } else if (document.querySelector('#race-lobby.active') ||
+                     document.querySelector('#team-lobby.active') ||
+                     document.querySelector('#leaderboards-screen.active') ||
+                     document.querySelector('#friends-screen.active')) {
+            showScreen(multiplayerMenu);
+          }
+          playButtonSound();
+          break;
+          
+        // Accessibility shortcuts
+        case 'h':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            if (highContrastToggle) {
+              highContrastToggle.checked = !highContrastToggle.checked;
+              highContrastToggle.dispatchEvent(new Event('change'));
+              showSuccessNotification(`High contrast ${highContrastToggle.checked ? 'enabled' : 'disabled'}`);
+            }
+          }
+          break;
+          
+        case 'r':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            if (reducedMotionToggle) {
+              reducedMotionToggle.checked = !reducedMotionToggle.checked;
+              reducedMotionToggle.dispatchEvent(new Event('change'));
+              showSuccessNotification(`Reduced motion ${reducedMotionToggle.checked ? 'enabled' : 'disabled'}`);
+            }
+          }
+          break;
+          
+        case 's':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            if (audioDescriptionsToggle) {
+              audioDescriptionsToggle.checked = !audioDescriptionsToggle.checked;
+              audioDescriptionsToggle.dispatchEvent(new Event('change'));
+              showSuccessNotification(`Audio descriptions ${audioDescriptionsToggle.checked ? 'enabled' : 'disabled'}`);
+            }
+          }
+          break;
+      }
+    }
+    
+    function focusElement(element) {
+      if (!element) return;
+      
+      // Remove focus from previous element
+      if (currentFocusedButton) {
+        currentFocusedButton.classList.remove('keyboard-focused');
+      }
+      
+      // Focus new element
+      currentFocusedButton = element;
+      element.focus();
+      element.classList.add('keyboard-focused');
+      
+      // Scroll into view if needed
+      element.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    }
+    
+    // Initialize keyboard navigation
+    initializeKeyboardNavigation();
+    
+    // Update focusable elements when screens change
+    const originalShowScreen = showScreen;
+    showScreen = function(screenElement) {
+      originalShowScreen(screenElement);
+      setTimeout(() => {
+        updateFocusableElements();
+        // Focus first element in new screen
+        if (focusableElements.length > 0) {
+          focusElement(focusableElements[0]);
+        }
+      }, 100);
+    };
+
+    // Show the lobby screen initially (fall-to-select system)
+    showScreen(lobbyScreen);
+    // console.log('[UI DEBUG] UI Initialized (called from initUI). Showing Lobby Screen.');
+  } // End of initUI function
+
+  // ** TODO: Replace DOMContentLoaded with the correct Hytopia UI initialization event **
+  // Example (placeholder): 
+  // hytopia.onUIReady(() => { 
+  //   initUI(); 
+  // });
+  
+  // Fallback: If no specific Hytopia event is found, try calling initUI directly after a small delay
+  // This is less reliable than an event but might work if DOMContentLoaded is simply delayed
+  setTimeout(() => {
+    // console.log('[UI DEBUG] Calling initUI after timeout (fallback)');
+    initUI();
+    
+    // Play welcome sound after UI initialization
+    try {
+      let welcomeSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/opening-voice.mp3';
+      
+      // Check if we're in development (localhost) but CDN URL was incorrectly replaced
+      if (window.location.hostname === 'localhost' && welcomeSoundPath.includes('play.hytopia.com')) {
+        console.log('[UI DEBUG] Fixing incorrect CDN URL for localhost development');
+        welcomeSoundPath = welcomeSoundPath.replace('https://play.hytopia.com', window.location.origin);
+      }
+      
+      console.log('[UI DEBUG] Attempting to play welcome sound:', welcomeSoundPath);
+      const welcomeSound = new Audio(welcomeSoundPath);
+      welcomeSound.play().catch(error => {
+        console.warn(`Could not autoplay welcome sound. Browser policy likely requires user interaction first. Error:`, error);
+      });
+    } catch (error) {
+      console.error('Error creating or playing welcome sound:', error);
+    }
+  }, 500); // Adjust delay as needed
+
+</script>

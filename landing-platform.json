@@ -1,0 +1,64 @@
+{
+  "platformSettings": {
+    "size": 14,
+    "yPosition": -160,
+    "sensorHeight": 6,
+    "sensorOffset": 25
+  },
+  "textures": {
+    "water": "assets/blocks/water-still.png",
+    "sand": "assets/blocks/sand.png",
+    "grass": "assets/blocks/grass.png",
+    "dirt": "assets/blocks/dirt.png",
+    "stone": "assets/blocks/stone.png",
+    "snow": "assets/blocks/snow.png",
+    "wood": "assets/blocks/oak-planks.png",
+    "brick": "assets/blocks/bricks.png",
+    "lava": "assets/blocks/lava/lava.png"
+  },
+  "islandPattern": [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 0],
+    [0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 0, 0],
+    [0, 1, 1, 2, 2, 3, 3, 3, 3, 2, 2, 1, 1, 0],
+    [0, 1, 2, 2, 3, 4, 4, 4, 3, 3, 2, 2, 1, 0],
+    [0, 1, 2, 2, 3, 4, 6, 4, 3, 3, 2, 2, 1, 0],
+    [0, 1, 2, 2, 3, 4, 4, 4, 3, 3, 2, 2, 1, 0],
+    [0, 1, 1, 2, 2, 3, 3, 3, 3, 2, 2, 1, 1, 0],
+    [0, 0, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 0, 0],
+    [0, 0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  ],
+  "decorPattern": [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  ],
+  "decorationTypes": {
+    "tree": {
+      "trunkHeight": 4,
+      "trunkTexture": "assets/blocks/oak-planks.png",
+      "leavesTexture": "assets/blocks/oak-leaves.png",
+      "leavesSize": [3, 3, 3]
+    },
+    "landingMarker": {
+      "height": 6,
+      "texture": "assets/blocks/diamond-block.png",
+      "rotationSpeed": 0.7
+    }
+  }
+}

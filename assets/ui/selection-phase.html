@@ -1,0 +1,103 @@
+<!--
+  Selection Phase SceneUI Template
+
+  Floating header that shows what the player is selecting.
+  Appears during mode/subject/difficulty selection.
+-->
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .selection-header {
+    background: linear-gradient(135deg, rgba(20, 20, 50, 0.95) 0%, rgba(40, 40, 80, 0.95) 100%);
+    border: 3px solid rgba(0, 200, 255, 0.7);
+    border-radius: 16px;
+    padding: 20px 40px;
+    min-width: 300px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #ffffff;
+    text-align: center;
+    box-shadow:
+      0 0 25px rgba(0, 200, 255, 0.4),
+      0 0 50px rgba(0, 200, 255, 0.2);
+    pointer-events: none;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #00d4ff;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.7);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: #aaccff;
+    letter-spacing: 1px;
+  }
+
+  .arrow-hint {
+    margin-top: 15px;
+    font-size: 24px;
+    color: #00ff88;
+    animation: bounce 1s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+
+  /* Phase-specific styles */
+  .selection-header.mode {
+    border-color: rgba(255, 200, 0, 0.8);
+    box-shadow: 0 0 25px rgba(255, 200, 0, 0.4);
+  }
+  .selection-header.mode .title { color: #ffd700; }
+
+  .selection-header.subject {
+    border-color: rgba(0, 255, 150, 0.8);
+    box-shadow: 0 0 25px rgba(0, 255, 150, 0.4);
+  }
+  .selection-header.subject .title { color: #00ff88; }
+
+  .selection-header.difficulty {
+    border-color: rgba(255, 100, 100, 0.8);
+    box-shadow: 0 0 25px rgba(255, 100, 100, 0.4);
+  }
+  .selection-header.difficulty .title { color: #ff6666; }
+</style>
+
+<div class="selection-header" id="selection-header">
+  <div class="title" id="title">Choose Game Mode</div>
+  <div class="subtitle" id="subtitle">Fall onto your choice!</div>
+  <div class="arrow-hint">↓</div>
+</div>
+
+<script>
+  hytopia.onData((data) => {
+    const header = document.getElementById('selection-header');
+
+    if (data.phase !== undefined) {
+      header.className = 'selection-header ' + data.phase;
+    }
+
+    if (data.title !== undefined) {
+      document.getElementById('title').textContent = data.title;
+    }
+
+    if (data.subtitle !== undefined) {
+      document.getElementById('subtitle').textContent = data.subtitle;
+    }
+  });
+</script>

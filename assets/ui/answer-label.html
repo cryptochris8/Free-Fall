@@ -1,0 +1,142 @@
+<!--
+  Answer Label SceneUI Template
+
+  This template is used for floating answer labels above answer blocks.
+  It receives state updates with the answer text to display.
+-->
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .answer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .answer-label {
+    background: linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 80px;
+    max-width: 200px;
+    word-wrap: break-word;
+
+    /* Border glow effect */
+    border: 3px solid rgba(100, 200, 255, 0.8);
+    box-shadow:
+      0 0 15px rgba(100, 200, 255, 0.4),
+      0 0 30px rgba(100, 200, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+    /* Text shadow for readability */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+    /* Animation */
+    animation: float 2s ease-in-out infinite, glow 1.5s ease-in-out infinite alternate;
+  }
+
+  /* Floating animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Glow pulse animation */
+  @keyframes glow {
+    0% {
+      box-shadow:
+        0 0 15px rgba(100, 200, 255, 0.4),
+        0 0 30px rgba(100, 200, 255, 0.2);
+      border-color: rgba(100, 200, 255, 0.8);
+    }
+    100% {
+      box-shadow:
+        0 0 20px rgba(100, 200, 255, 0.6),
+        0 0 40px rgba(100, 200, 255, 0.3);
+      border-color: rgba(150, 220, 255, 1);
+    }
+  }
+
+  /* Arrow pointing down to block */
+  .answer-arrow {
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 16px solid rgba(100, 200, 255, 0.8);
+    margin-top: -3px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+
+  /* Different styles for correct/wrong feedback (set via state) */
+  .answer-label.correct {
+    border-color: rgba(100, 255, 100, 0.9);
+    box-shadow:
+      0 0 20px rgba(100, 255, 100, 0.5),
+      0 0 40px rgba(100, 255, 100, 0.3);
+    animation: correctPulse 0.5s ease-out;
+  }
+
+  .answer-label.wrong {
+    border-color: rgba(255, 100, 100, 0.9);
+    box-shadow:
+      0 0 20px rgba(255, 100, 100, 0.5),
+      0 0 40px rgba(255, 100, 100, 0.3);
+    animation: wrongShake 0.5s ease-out;
+  }
+
+  @keyframes correctPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+  }
+</style>
+
+<div class="answer-container">
+  <div id="answer-label" class="answer-label">
+    <span id="answer-text">?</span>
+  </div>
+  <div class="answer-arrow"></div>
+</div>
+
+<script>
+  // Handle state updates from the server
+  hytopia.onData((data) => {
+    if (data.text !== undefined) {
+      document.getElementById('answer-text').textContent = data.text;
+    }
+
+    // Handle feedback styling
+    const label = document.getElementById('answer-label');
+    if (data.status === 'correct') {
+      label.classList.remove('wrong');
+      label.classList.add('correct');
+    } else if (data.status === 'wrong') {
+      label.classList.remove('correct');
+      label.classList.add('wrong');
+    } else {
+      label.classList.remove('correct', 'wrong');
+    }
+  });
+</script>
