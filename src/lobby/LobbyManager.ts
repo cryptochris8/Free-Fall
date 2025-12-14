@@ -278,7 +278,7 @@ export class LobbyManager {
       const textLabel = new SceneUI({
         templateId: 'selection-label',
         attachedToEntity: block,
-        offset: { x: 0, y: 4, z: 0 },
+        offset: { x: 0, y: 10, z: 0 },
         state: {
           text: modeInfo.label
         }
@@ -291,15 +291,6 @@ export class LobbyManager {
     this._selectionBlocks.set(player.id, blocks);
     this._textLabels.set(player.id, labels);
     console.log(`[LobbyManager] Created ${blocks.length} mode selection blocks`);
-
-    // Notify UI with mode options
-    player.ui.sendData({
-      type: 'selection-phase',
-      phase: 'mode',
-      title: 'Choose Game Mode',
-      subtitle: 'Fall onto your choice!',
-      options: modes.map(m => m.label)
-    });
   }
 
   private _handleModeSelection(player: Player, playerEntity: PlayerEntity, mode: GameMode): void {
@@ -378,7 +369,7 @@ export class LobbyManager {
       const textLabel = new SceneUI({
         templateId: 'selection-label',
         attachedToEntity: block,
-        offset: { x: 0, y: 4, z: 0 },
+        offset: { x: 0, y: 10, z: 0 },
         state: {
           text: subjectInfo.label
         }
@@ -390,14 +381,6 @@ export class LobbyManager {
 
     this._selectionBlocks.set(player.id, blocks);
     this._textLabels.set(player.id, labels);
-
-    player.ui.sendData({
-      type: 'selection-phase',
-      phase: 'subject',
-      title: 'Choose Subject',
-      subtitle: 'Fall onto your choice!',
-      options: subjects.map(s => s.label)
-    });
   }
 
   private _handleSubjectSelection(player: Player, playerEntity: PlayerEntity, subject: SubjectType): void {
@@ -460,7 +443,7 @@ export class LobbyManager {
       const textLabel = new SceneUI({
         templateId: 'selection-label',
         attachedToEntity: block,
-        offset: { x: 0, y: 4, z: 0 },
+        offset: { x: 0, y: 10, z: 0 },
         state: {
           text: diffInfo.label
         }
@@ -472,14 +455,6 @@ export class LobbyManager {
 
     this._selectionBlocks.set(player.id, blocks);
     this._textLabels.set(player.id, labels);
-
-    player.ui.sendData({
-      type: 'selection-phase',
-      phase: 'difficulty',
-      title: 'Choose Difficulty',
-      subtitle: 'Fall onto your choice!',
-      options: difficulties.map(d => d.label)
-    });
   }
 
   private _handleDifficultySelection(

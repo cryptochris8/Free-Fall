@@ -327,5 +327,7 @@ export const GAME_CONSTANTS = {
   AUDIO_MUSIC: 'audio/music/Free-fall.mp3',
   AUDIO_CORRECT: 'audio/sfx/correct.mp3',
   AUDIO_WRONG: 'audio/sfx/wrong.mp3',
-  AUDIO_LANDING: 'audio/sfx/landing.mp3'
+  AUDIO_LANDING: 'audio/sfx/landing.mp3',
+  AUDIO_OPENING_VOICE: 'audio/sfx/ui/opening-voice.mp3',
+  AUDIO_GAME_OVER_VOICE: 'audio/sfx/ui/game-over-voice.mp3'
 } as const;

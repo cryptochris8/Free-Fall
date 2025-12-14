@@ -1604,11 +1604,38 @@ and also configure additional buttons for mobile compatibility.
 <script>
   // console.log('[UI DEBUG] Script block parsing started.'); // Keep this top-level log
 
+  // Add audio context resume handler for browser autoplay policy
+  let audioContextResumed = false;
+  function resumeAudioContext() {
+    if (!audioContextResumed) {
+      console.log('[UI DEBUG] Attempting to resume AudioContext on user interaction');
+      audioContextResumed = true;
+
+      // Try to play a silent audio to unlock the audio context
+      try {
+        const silentAudio = new Audio();
+        silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        silentAudio.play().then(() => {
+          console.log('[UI DEBUG] AudioContext unlocked successfully');
+        }).catch(err => {
+          console.warn('[UI DEBUG] Failed to unlock AudioContext:', err);
+        });
+      } catch (error) {
+        console.error('[UI DEBUG] Error unlocking AudioContext:', error);
+      }
+    }
+  }
+
+  // Add listeners for various user interactions
+  document.addEventListener('click', resumeAudioContext, { once: true });
+  document.addEventListener('keydown', resumeAudioContext, { once: true });
+  document.addEventListener('touchstart', resumeAudioContext, { once: true });
+
   // ** TODO: Replace DOMContentLoaded with the correct Hytopia UI initialization event **
-  // document.addEventListener('DOMContentLoaded', () => { 
-  //   initUI(); 
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   initUI();
   // });
-  
+
   // Wrap UI initialization logic in a function
   function initUI() {
     // console.log('[UI DEBUG] Initializing UI...');
@@ -3372,6 +3399,38 @@ and also configure additional buttons for mobile compatibility.
       text-align: center;
       pointer-events: none;
       white-space: nowrap;
+    `;
+
+    onState(state => {
+      if (state.text) {
+        element.textContent = state.text;
+      }
+    });
+
+    return element;
+  });
+
+  // Register SceneUI template for answer labels
+  hytopia.registerSceneUITemplate('answer-label', (id, onState) => {
+    const element = document.createElement('div');
+    element.style.cssText = `
+      font-family: 'Orbitron', sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      text-shadow:
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000,
+        0 0 10px rgba(255,255,255,0.5);
+      text-align: center;
+      pointer-events: none;
+      white-space: nowrap;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
     `;
 
     onState(state => {

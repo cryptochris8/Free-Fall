@@ -21,7 +21,8 @@ import {
   Entity,
   RigidBodyType,
   ColliderShape,
-  PlayerCameraMode
+  PlayerCameraMode,
+  SceneUI
 } from 'hytopia';
 
 import { FallingPlayerController } from '../controllers/FallingPlayerController';
@@ -107,6 +108,7 @@ export class EduFallGameManager {
 
   // Answer block entities (per player)
   private _answerBlocks: Map<string, Entity[]> = new Map();
+  private _answerLabels: Map<string, SceneUI[]> = new Map();
 
   // Callbacks for external systems
   private _onCorrectAnswerCallbacks: ((player: Player, breakdown: ScoreBreakdown) => void)[] = [];
@@ -132,7 +134,7 @@ export class EduFallGameManager {
     this._backgroundMusic = new Audio({
       uri: GAME_CONSTANTS.AUDIO_MUSIC,
       loop: true,
-      volume: 0.7
+      volume: 1.0 // Increased from 0.7
     });
 
     this._setupEventListeners();
@@ -456,6 +458,11 @@ export class EduFallGameManager {
     // Spawn player in lobby instead of directly in game
     this._lobbyManager.spawnInLobby(player, playerEntity);
 
+    // Play opening voice after a short delay to ensure audio context is ready
+    setTimeout(() => {
+      this._playSound(GAME_CONSTANTS.AUDIO_OPENING_VOICE);
+    }, 1000);
+
     console.log(`[EduFallGameManager] Player ${player.username} initialized in lobby`);
   }
 
@@ -709,7 +716,7 @@ export class EduFallGameManager {
 
       // Create answer block (neutral color - labels show the answer)
       const block = new Entity({
-        blockTextureUri: 'blocks/quartz-block.png', // Neutral white/gray block
+        blockTextureUri: 'blocks/stone-bricks.png', // Neutral block texture
         blockHalfExtents: { x: 0.5, y: 0.5, z: 0.5 }, // Single block size
         name: `answer_block_${index}`,
         rigidBodyOptions: {
@@ -717,6 +724,7 @@ export class EduFallGameManager {
           colliders: [{
             shape: ColliderShape.BLOCK,
             halfExtents: { x: 0.5, y: 0.5, z: 0.5 }, // Single block size
+            isSensor: true, // Allow player to pass through
             onCollision: (other, started) => {
               if (started && other instanceof PlayerEntity && other.player?.id === player.id) {
                 this._handleAnswerCollision(player, answer, isCorrect);
@@ -728,9 +736,23 @@ export class EduFallGameManager {
 
       block.spawn(this._world, { x, y: blockY, z: 0 });
       blocks.push(block);
+
+      // Create SceneUI label for the answer
+      const answerLabel = new SceneUI({
+        templateId: 'answer-label',
+        attachedToEntity: block,
+        offset: { x: 0, y: 10, z: 0 },
+        state: {
+          text: answer
+        }
+      });
+
+      answerLabel.load(this._world);
+      labels.push(answerLabel);
     });
 
     this._answerBlocks.set(player.id, blocks);
+    this._answerLabels.set(player.id, labels);
 
     // Send answer options to UI for display
     player.ui.sendData({
@@ -738,7 +760,7 @@ export class EduFallGameManager {
       answers: allAnswers
     });
 
-    console.log(`[EduFallGameManager] Spawned ${blocks.length} answer blocks`);
+    console.log(`[EduFallGameManager] Spawned ${blocks.length} answer blocks with labels`);
   }
 
   private _handleAnswerCollision(player: Player, answer: string, isCorrect: boolean): void {
@@ -991,6 +1013,11 @@ export class EduFallGameManager {
 
       console.log(`[EduFallGameManager] Game ended for ${player.username}: Score ${summary.totalScore}, Grade ${summary.grade}`);
 
+      // Play game over voice
+      if (!disconnected) {
+        this._playSound(GAME_CONSTANTS.AUDIO_GAME_OVER_VOICE);
+      }
+
       // Notify callbacks
       this._onGameEndCallbacks.forEach(cb => cb(player, summary));
 
@@ -1113,6 +1140,15 @@ export class EduFallGameManager {
       });
       this._answerBlocks.delete(playerId);
     }
+
+    // Clear answer labels
+    const labels = this._answerLabels.get(playerId);
+    if (labels) {
+      labels.forEach(label => {
+        label.unload();
+      });
+      this._answerLabels.delete(playerId);
+    }
   }
 
   private _clearPlatform(): void {
@@ -1126,12 +1162,12 @@ export class EduFallGameManager {
 
   private _playSound(uri: string, attachedEntity?: Entity): void {
     try {
+      console.log(`[EduFallGameManager] Playing sound: ${uri}`);
       const audio = new Audio({
         uri,
         loop: false,
-        volume: 1.0,
-        attachedToEntity: attachedEntity,
-        referenceDistance: 15
+        volume: 1.0
+        // Removed attachedToEntity - plays as global audio instead of positional
       });
       audio.play(this._world);
     } catch (error) {
@@ -1152,7 +1188,7 @@ export class EduFallGameManager {
           console.error('[EduFallGameManager] Error playing background music:', error);
         }
       }
-    }, 15000);
+    }, 1000); // Reduced delay from 15s to 1s
   }
 
   private _stopBackgroundMusic(): void {
