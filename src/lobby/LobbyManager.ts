@@ -15,7 +15,8 @@ import {
   PlayerEntity,
   Entity,
   RigidBodyType,
-  ColliderShape
+  ColliderShape,
+  SceneUI
 } from 'hytopia';
 
 import type { SubjectType, QuestionDifficulty } from '../questions/QuestionProvider';
@@ -50,8 +51,8 @@ export type SelectionPhase =
 // Player will spawn higher and fall down to them
 const LOBBY_SPAWN_Y = 80;  // Where player spawns (higher for more fall time)
 const SELECTION_BLOCK_Y = 0;  // Same as working ANSWER_BLOCK_Y
-const SELECTION_BLOCK_SPACING = 6;  // Wider spacing for easier selection
-const BLOCK_HALF_EXTENTS = { x: 2, y: 1, z: 2 };  // Larger blocks for easier landing
+const SELECTION_BLOCK_SPACING = 3;  // Spacing between selection blocks
+const BLOCK_HALF_EXTENTS = { x: 0.5, y: 0.5, z: 0.5 };  // Single block size
 
 // Block textures for different selections (using available textures)
 const MODE_TEXTURES: Record<GameMode, string> = {
@@ -92,6 +93,9 @@ export class LobbyManager {
 
   // Selection blocks per player
   private _selectionBlocks: Map<string, Entity[]> = new Map();
+
+  // Text labels per player
+  private _textLabels: Map<string, SceneUI[]> = new Map();
 
   // Callbacks
   private _onSelectionComplete: ((playerId: string, state: LobbyState) => void)[] = [];
@@ -238,6 +242,7 @@ export class LobbyManager {
     ];
 
     const blocks: Entity[] = [];
+    const labels: Entity[] = [];
 
     const startX = -((modes.length - 1) * SELECTION_BLOCK_SPACING) / 2;
 
@@ -268,9 +273,23 @@ export class LobbyManager {
       block.spawn(this._world!, { x, y: SELECTION_BLOCK_Y, z: 0 });
       console.log(`[LobbyManager] Spawned ${modeInfo.mode} block, isSpawned: ${block.isSpawned}`);
       blocks.push(block);
+
+      // Create text label using SceneUI attached to the block
+      const textLabel = new SceneUI({
+        templateId: 'selection-label',
+        attachedToEntity: block,
+        offset: { x: 0, y: 4, z: 0 },
+        state: {
+          text: modeInfo.label
+        }
+      });
+
+      textLabel.load(this._world!);
+      labels.push(textLabel);
     });
 
     this._selectionBlocks.set(player.id, blocks);
+    this._textLabels.set(player.id, labels);
     console.log(`[LobbyManager] Created ${blocks.length} mode selection blocks`);
 
     // Notify UI with mode options
@@ -327,6 +346,7 @@ export class LobbyManager {
     ];
 
     const blocks: Entity[] = [];
+    const labels: Entity[] = [];
 
     const startX = -((subjects.length - 1) * SELECTION_BLOCK_SPACING) / 2;
 
@@ -353,9 +373,23 @@ export class LobbyManager {
 
       block.spawn(this._world!, { x, y: SELECTION_BLOCK_Y, z: 0 });
       blocks.push(block);
+
+      // Create text label using SceneUI attached to the block
+      const textLabel = new SceneUI({
+        templateId: 'selection-label',
+        attachedToEntity: block,
+        offset: { x: 0, y: 4, z: 0 },
+        state: {
+          text: subjectInfo.label
+        }
+      });
+
+      textLabel.load(this._world!);
+      labels.push(textLabel);
     });
 
     this._selectionBlocks.set(player.id, blocks);
+    this._textLabels.set(player.id, labels);
 
     player.ui.sendData({
       type: 'selection-phase',
@@ -394,6 +428,7 @@ export class LobbyManager {
     ];
 
     const blocks: Entity[] = [];
+    const labels: Entity[] = [];
 
     const startX = -((difficulties.length - 1) * SELECTION_BLOCK_SPACING) / 2;
 
@@ -420,9 +455,23 @@ export class LobbyManager {
 
       block.spawn(this._world!, { x, y: SELECTION_BLOCK_Y, z: 0 });
       blocks.push(block);
+
+      // Create text label using SceneUI attached to the block
+      const textLabel = new SceneUI({
+        templateId: 'selection-label',
+        attachedToEntity: block,
+        offset: { x: 0, y: 4, z: 0 },
+        state: {
+          text: diffInfo.label
+        }
+      });
+
+      textLabel.load(this._world!);
+      labels.push(textLabel);
     });
 
     this._selectionBlocks.set(player.id, blocks);
+    this._textLabels.set(player.id, labels);
 
     player.ui.sendData({
       type: 'selection-phase',
@@ -515,6 +564,15 @@ export class LobbyManager {
         if (block.isSpawned) block.despawn();
       });
       this._selectionBlocks.delete(playerId);
+    }
+
+    // Clear text labels
+    const labels = this._textLabels.get(playerId);
+    if (labels) {
+      labels.forEach(label => {
+        label.unload();
+      });
+      this._textLabels.delete(playerId);
     }
   }
 }

@@ -51,7 +51,7 @@ export class AnswerBlockManager {
     'blocks/obsidian.png',   // 14
     'blocks/diamond-block.png', // 15
   ];
-  private static readonly BLOCK_HALF_EXTENTS: Vector3Like = { x: 1.0, y: 1.0, z: 1.0 };
+  private static readonly BLOCK_HALF_EXTENTS: Vector3Like = { x: 0.5, y: 0.5, z: 0.5 };
   private static readonly BLOCK_SPACING = 4;
   private static readonly BLOCK_Y = GAME_CONSTANTS.ANSWER_BLOCK_Y;
 

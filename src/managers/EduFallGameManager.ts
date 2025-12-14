@@ -710,13 +710,13 @@ export class EduFallGameManager {
       // Create answer block (neutral color - labels show the answer)
       const block = new Entity({
         blockTextureUri: 'blocks/quartz-block.png', // Neutral white/gray block
-        blockHalfExtents: { x: 1, y: 1, z: 1 },
+        blockHalfExtents: { x: 0.5, y: 0.5, z: 0.5 }, // Single block size
         name: `answer_block_${index}`,
         rigidBodyOptions: {
           type: RigidBodyType.FIXED,
           colliders: [{
             shape: ColliderShape.BLOCK,
-            halfExtents: { x: 1, y: 1, z: 1 },
+            halfExtents: { x: 0.5, y: 0.5, z: 0.5 }, // Single block size
             onCollision: (other, started) => {
               if (started && other instanceof PlayerEntity && other.player?.id === player.id) {
                 this._handleAnswerCollision(player, answer, isCorrect);

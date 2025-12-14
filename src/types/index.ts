@@ -316,7 +316,7 @@ export const GAME_CONSTANTS = {
   FALL_THRESHOLD_Y: -5,
 
   PLAYER_MOVE_SPEED: 5,
-  PLAYER_GRAVITY_SCALE: 0.3, // Slower gravity for more control
+  PLAYER_GRAVITY_SCALE: 0.1, // Very slow gravity for assessing labels
   GRAVITY_INCREASE_PER_CORRECT: 0.05,
   MAX_GRAVITY_MULTIPLIER: 3,
 

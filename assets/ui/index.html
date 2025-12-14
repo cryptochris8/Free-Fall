@@ -3355,4 +3355,32 @@ and also configure additional buttons for mobile compatibility.
     }
   }, 500); // Adjust delay as needed
 
+  // Register SceneUI template for selection labels
+  hytopia.registerSceneUITemplate('selection-label', (id, onState) => {
+    const element = document.createElement('div');
+    element.style.cssText = `
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      text-shadow:
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000,
+        0 0 10px rgba(255,255,255,0.5);
+      text-align: center;
+      pointer-events: none;
+      white-space: nowrap;
+    `;
+
+    onState(state => {
+      if (state.text) {
+        element.textContent = state.text;
+      }
+    });
+
+    return element;
+  });
+
 </script>
