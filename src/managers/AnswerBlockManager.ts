@@ -103,11 +103,10 @@ export class AnswerBlockManager {
     position: Vector3Like,
     correctAnswer: number
   ): Entity {
-    // Use modulo for texture selection (0-15 available)
-    const textureIndex = answerValue > 15 ? answerValue % 16 : Math.max(0, Math.min(answerValue, 15));
-    const texturePath = AnswerBlockManager.BLOCK_TEXTURES[textureIndex];
+    // Use unified Hytopia answer block texture
+    const texturePath = 'blocks/Free-fall/hytopia-answer.png';
 
-    console.log(`[AnswerBlockManager] Creating block for answer ${answerValue} at position (${position.x}, ${position.y}, ${position.z}) with texture: ${texturePath}`);
+    console.log(`[AnswerBlockManager] Creating block for answer ${answerValue} at position (${position.x}, ${position.y}, ${position.z})`);
 
     const block = new Entity({
       name: `AnswerBlock_${answerValue}`,

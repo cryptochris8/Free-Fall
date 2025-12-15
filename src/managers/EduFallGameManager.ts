@@ -714,9 +714,9 @@ export class EduFallGameManager {
       const isCorrect = answer === question.correctAnswer;
       const x = startX + (index * spacing);
 
-      // Create answer block (neutral color - labels show the answer)
+      // Create answer block with Hytopia gradient texture
       const block = new Entity({
-        blockTextureUri: 'blocks/stone-bricks.png', // Neutral block texture
+        blockTextureUri: 'blocks/Free-fall/hytopia-answer.png',
         blockHalfExtents: { x: 0.5, y: 0.5, z: 0.5 }, // Single block size
         name: `answer_block_${index}`,
         rigidBodyOptions: {
