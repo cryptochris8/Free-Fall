@@ -75,6 +75,9 @@ and also configure additional buttons for mobile compatibility.
 <!-- Lobby Screen - Fall-to-Select System -->
 <div id="lobby-screen" class="screen active">
   <div class="lobby-container">
+    <!-- Logo -->
+    <img id="lobby-logo" src="{{CDN_ASSETS_URL}}/ui/logos/free-fall-logo1.png" alt="Free Fall" class="lobby-logo">
+
     <!-- Stats Panel -->
     <div class="lobby-stats-panel">
       <div class="stats-header">
@@ -820,6 +823,13 @@ and also configure additional buttons for mobile compatibility.
 
   #lobby-screen.active * {
     pointer-events: auto; /* But UI elements are still clickable */
+  }
+
+  .lobby-logo {
+    max-width: 80%;
+    max-height: 200px;
+    margin-bottom: 20px;
+    object-fit: contain;
   }
 
   .lobby-container {
