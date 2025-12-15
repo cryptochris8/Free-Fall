@@ -309,8 +309,8 @@ export interface UIMessage {
 
 export const GAME_CONSTANTS = {
   MAX_QUESTIONS: 10,
-  PLAYER_SPAWN_POSITION: { x: 0, y: 50, z: 0 },
-  PLAYER_RESET_POSITION: { x: 0, y: 50, z: 0 },
+  PLAYER_SPAWN_POSITION: { x: 0, y: 80, z: 0 },
+  PLAYER_RESET_POSITION: { x: 0, y: 80, z: 0 },
   ANSWER_BLOCK_Y: 0,
   LANDING_PLATFORM_Y: -40,
   FALL_THRESHOLD_Y: -5,
