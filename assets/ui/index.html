@@ -74,31 +74,32 @@ and also configure additional buttons for mobile compatibility.
 
 <!-- Lobby Screen - Fall-to-Select System -->
 <div id="lobby-screen" class="screen active">
+  <!-- Stats Panel (top right corner) -->
+  <div class="lobby-stats-panel">
+    <div class="stats-header">
+      <span class="player-name" id="lobby-player-name">Player</span>
+      <span class="player-level" id="lobby-player-level">Level 1</span>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-value" id="lobby-total-score">0</span>
+        <span class="stat-label">Total Score</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="lobby-games-played">0</span>
+        <span class="stat-label">Games</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="lobby-high-score">0</span>
+        <span class="stat-label">High Score</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Centered content -->
   <div class="lobby-container">
     <!-- Logo -->
     <img id="lobby-logo" src="{{CDN_ASSETS_URL}}/ui/logos/free-fall-logo1.png" alt="Free Fall" class="lobby-logo">
-
-    <!-- Stats Panel -->
-    <div class="lobby-stats-panel">
-      <div class="stats-header">
-        <span class="player-name" id="lobby-player-name">Player</span>
-        <span class="player-level" id="lobby-player-level">Level 1</span>
-      </div>
-      <div class="stats-row">
-        <div class="stat-item">
-          <span class="stat-value" id="lobby-total-score">0</span>
-          <span class="stat-label">Total Score</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value" id="lobby-games-played">0</span>
-          <span class="stat-label">Games</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-value" id="lobby-high-score">0</span>
-          <span class="stat-label">High Score</span>
-        </div>
-      </div>
-    </div>
 
     <!-- Selection Header -->
     <div class="lobby-selection-header" id="lobby-selection-header">
@@ -825,6 +826,7 @@ and also configure additional buttons for mobile compatibility.
     pointer-events: auto; /* But UI elements are still clickable */
   }
 
+
   .lobby-logo {
     max-width: 80%;
     max-height: 200px;
@@ -841,6 +843,9 @@ and also configure additional buttons for mobile compatibility.
   }
 
   .lobby-stats-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     background: linear-gradient(135deg, rgba(15,15,35,0.95) 0%, rgba(25,25,55,0.95) 100%);
     border: 2px solid rgba(0,200,255,0.5);
     border-radius: 12px;
