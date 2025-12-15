@@ -72,18 +72,24 @@ function createTunnel(world: World): void {
   const RING_SPACING = 5;     // Space between rings vertically
   const BLOCKS_PER_RING = 16;
 
-  // Number textures (0-9) - using colorful blocks for visual variety
+  // Custom Free-fall number blocks (0-15)
   const numberTextures = [
-    'blocks/stone-bricks.png',     // 0
-    'blocks/cobblestone.png',      // 1
-    'blocks/sandstone.png',        // 2
-    'blocks/oak-planks.png',       // 3
-    'blocks/bricks.png',           // 4
-    'blocks/mossy-coblestone.png', // 5
-    'blocks/clay.png',             // 6
-    'blocks/gravel.png',           // 7
-    'blocks/ice.png',              // 8
-    'blocks/stone.png'             // 9
+    'blocks/Free-fall/0.png',   // 0
+    'blocks/Free-fall/1.png',   // 1
+    'blocks/Free-fall/2.png',   // 2
+    'blocks/Free-fall/3.png',   // 3
+    'blocks/Free-fall/4.png',   // 4
+    'blocks/Free-fall/5.png',   // 5
+    'blocks/Free-fall/6.png',   // 6
+    'blocks/Free-fall/7.png',   // 7
+    'blocks/Free-fall/8.png',   // 8
+    'blocks/Free-fall/9.png',   // 9
+    'blocks/Free-fall/10.png',  // 10
+    'blocks/Free-fall/11.png',  // 11
+    'blocks/Free-fall/12.png',  // 12
+    'blocks/Free-fall/13.png',  // 13
+    'blocks/Free-fall/14.png',  // 14
+    'blocks/Free-fall/15.png'   // 15
   ];
 
   let blocksCreated = 0;

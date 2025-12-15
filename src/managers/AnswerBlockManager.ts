@@ -32,24 +32,24 @@ export class AnswerBlockManager {
   private _currentProblem: MathProblem | null = null;
   private _callbacks: AnswerBlockCallbacks;
 
-  // Block configuration - using standard block textures that are guaranteed to exist
+  // Block configuration - using custom Free-fall block textures
   private static readonly BLOCK_TEXTURES = [
-    'blocks/stone.png',      // 0
-    'blocks/dirt.png',       // 1
-    'blocks/oak-planks.png', // 2
-    'blocks/cobblestone.png',// 3
-    'blocks/sand.png',       // 4
-    'blocks/gravel.png',     // 5
-    'blocks/gold-ore.png',   // 6
-    'blocks/iron-ore.png',   // 7
-    'blocks/coal-ore.png',   // 8
-    'blocks/oak-log.png',    // 9
-    'blocks/glass.png',      // 10
-    'blocks/lapis-block.png',// 11
-    'blocks/sandstone.png',  // 12
-    'blocks/mossy-cobblestone.png', // 13
-    'blocks/obsidian.png',   // 14
-    'blocks/diamond-block.png', // 15
+    'blocks/Free-fall/0.png',   // 0
+    'blocks/Free-fall/1.png',   // 1
+    'blocks/Free-fall/2.png',   // 2
+    'blocks/Free-fall/3.png',   // 3
+    'blocks/Free-fall/4.png',   // 4
+    'blocks/Free-fall/5.png',   // 5
+    'blocks/Free-fall/6.png',   // 6
+    'blocks/Free-fall/7.png',   // 7
+    'blocks/Free-fall/8.png',   // 8
+    'blocks/Free-fall/9.png',   // 9
+    'blocks/Free-fall/10.png',  // 10
+    'blocks/Free-fall/11.png',  // 11
+    'blocks/Free-fall/12.png',  // 12
+    'blocks/Free-fall/13.png',  // 13
+    'blocks/Free-fall/14.png',  // 14
+    'blocks/Free-fall/15.png'   // 15
   ];
   private static readonly BLOCK_HALF_EXTENTS: Vector3Like = { x: 0.5, y: 0.5, z: 0.5 };
   private static readonly BLOCK_SPACING = 4;
