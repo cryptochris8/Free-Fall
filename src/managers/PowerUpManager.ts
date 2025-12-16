@@ -13,7 +13,8 @@ import {
   Entity,
   PlayerEntity,
   RigidBodyType,
-  ColliderShape
+  ColliderShape,
+  Audio
 } from 'hytopia';
 import type { Vector3Like } from 'hytopia';
 import type { PowerUpType, ActivePowerUp, PowerUpConfig } from '../types';
@@ -32,7 +33,7 @@ export class PowerUpManager {
   // Rewind data per player (for undo functionality)
   private _rewindData: Map<string, { position: Vector3Like; score: number; question: number }> = new Map();
 
-  // Power-up configurations
+  // Power-up configurations - using Free-fall numbered textures that are confirmed to work
   private readonly _powerUpConfigs: Map<PowerUpType, PowerUpConfig> = new Map([
     ['slowmotion', {
       type: 'slowmotion',
@@ -41,7 +42,7 @@ export class PowerUpManager {
       duration: 8000,
       color: { r: 0, g: 150, b: 255 },
       icon: 'clock',
-      textureUri: 'blocks/packed-ice.png'
+      textureUri: 'blocks/Free-fall/0.png'  // Blue-tinted number block
     }],
     ['shield', {
       type: 'shield',
@@ -50,7 +51,7 @@ export class PowerUpManager {
       duration: -1, // Until used
       color: { r: 255, g: 200, b: 0 },
       icon: 'shield',
-      textureUri: 'blocks/gold-block.png'
+      textureUri: 'blocks/Free-fall/5.png'  // Yellow-tinted number block
     }],
     ['magnet', {
       type: 'magnet',
@@ -59,7 +60,7 @@ export class PowerUpManager {
       duration: 5000,
       color: { r: 255, g: 0, b: 100 },
       icon: 'magnet',
-      textureUri: 'blocks/redstone-block.png'
+      textureUri: 'blocks/Free-fall/3.png'  // Red-tinted number block
     }],
     ['doublepoints', {
       type: 'doublepoints',
@@ -68,7 +69,7 @@ export class PowerUpManager {
       duration: -1, // Until used
       color: { r: 0, g: 255, b: 100 },
       icon: 'star',
-      textureUri: 'blocks/emerald-block.png'
+      textureUri: 'blocks/Free-fall/2.png'  // Green-tinted number block
     }],
     ['rewind', {
       type: 'rewind',
@@ -77,7 +78,7 @@ export class PowerUpManager {
       duration: -1, // Until used
       color: { r: 150, g: 0, b: 255 },
       icon: 'rewind',
-      textureUri: 'blocks/amethyst-block.png'
+      textureUri: 'blocks/Free-fall/7.png'  // Purple-tinted number block
     }]
   ]);
 
@@ -197,10 +198,29 @@ export class PowerUpManager {
       if (index > -1) this._spawnedPowerUps.splice(index, 1);
     }
 
+    // Play collection sound
+    this._playCollectionSound();
+
     // Apply the power-up
     this._applyPowerUp(player.id, player.username, type, playerEntity);
 
     console.log(`[PowerUpManager] ${player.username} collected ${type}`);
+  }
+
+  /**
+   * Play sound when collecting a power-up
+   */
+  private _playCollectionSound(): void {
+    try {
+      const audio = new Audio({
+        uri: GAME_CONSTANTS.AUDIO_POWERUP,
+        loop: false,
+        volume: 1.0
+      });
+      audio.play(this._world);
+    } catch (error) {
+      console.error('[PowerUpManager] Error playing collection sound:', error);
+    }
   }
 
   /**

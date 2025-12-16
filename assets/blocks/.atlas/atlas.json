@@ -223,7 +223,7 @@
         0.5838031045751634,
         0.40091911764705884
       ],
-      "isTransparent": true,
+      "isTransparent": false,
       "needsAlphaTest": false
     },
     "blocks/TNT/+x.png": {
@@ -4907,5 +4907,5 @@
       "needsAlphaTest": false
     }
   },
-  "sourceHash": "02c4a27f8f6f1a0ca2bfcd15d0c7fe539e275fc23e6ba54c06435819a12f133a"
+  "sourceHash": "b484fd124a0048a07d353fa2509417b45f731a7b84c2cb8b47ab59fae3c36b29"
 }

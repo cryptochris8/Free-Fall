@@ -45,6 +45,9 @@ import { LeaderboardManager } from '../persistence/LeaderboardManager';
 import { LobbyManager, GameMode, LobbyState } from '../lobby';
 import { TournamentManager } from '../tournament';
 
+// Power-up system
+import { PowerUpManager } from './PowerUpManager';
+
 // ============ Types ============
 
 export interface EduFallPlayerState {
@@ -98,10 +101,13 @@ export class EduFallGameManager {
   private _leaderboardManager: LeaderboardManager;
   private _lobbyManager: LobbyManager;
   private _tournamentManager: TournamentManager;
+  private _powerUpManager: PowerUpManager;
 
   // Audio
   private _backgroundMusic: Audio | null = null;
   private _isMusicPlaying: boolean = false;
+  private _lobbyMusic: Audio | null = null;
+  private _isLobbyMusicPlaying: boolean = false;
 
   // Landing platform entities
   private _platformEntities: Entity[] = [];
@@ -125,16 +131,24 @@ export class EduFallGameManager {
     this._leaderboardManager = LeaderboardManager.getInstance();
     this._lobbyManager = LobbyManager.getInstance();
     this._tournamentManager = TournamentManager.getInstance();
+    this._powerUpManager = PowerUpManager.getInstance(world);
 
     // Set world references
     this._lobbyManager.setWorld(world);
     this._tournamentManager.setWorld(world);
 
-    // Create background music
+    // Create background music (game music)
     this._backgroundMusic = new Audio({
       uri: GAME_CONSTANTS.AUDIO_MUSIC,
       loop: true,
-      volume: 1.0 // Increased from 0.7
+      volume: 1.0
+    });
+
+    // Create lobby music (Hytopia menu theme)
+    this._lobbyMusic = new Audio({
+      uri: GAME_CONSTANTS.AUDIO_LOBBY_MUSIC,
+      loop: true,
+      volume: 0.7
     });
 
     this._setupEventListeners();
@@ -463,6 +477,9 @@ export class EduFallGameManager {
       this._playSound(GAME_CONSTANTS.AUDIO_OPENING_VOICE);
     }, 1000);
 
+    // Start lobby music
+    this._playLobbyMusic();
+
     console.log(`[EduFallGameManager] Player ${player.username} initialized in lobby`);
   }
 
@@ -539,9 +556,44 @@ export class EduFallGameManager {
         });
         break;
 
+      case 'use-rewind':
+        this._handleUseRewind(player);
+        break;
+
       default:
         break;
     }
+  }
+
+  private _handleUseRewind(player: Player): void {
+    const playerData = this._players.get(player.id);
+    if (!playerData || !playerData.state.gameActive) return;
+
+    const rewindData = this._powerUpManager.useRewind(player.id);
+    if (!rewindData) {
+      player.ui.sendData({ type: 'rewind-unavailable' });
+      return;
+    }
+
+    console.log(`[EduFallGameManager] Rewind used by ${player.username}`);
+
+    // Restore previous state
+    playerData.entity.setPosition(rewindData.position);
+    playerData.state.questionsAnswered = rewindData.question;
+
+    // If last answer was wrong, undo it
+    if (playerData.state.wrongAnswers > 0) {
+      playerData.state.wrongAnswers--;
+    }
+
+    // Reset fall state
+    (playerData.entity.controller as FallingPlayerController).resetFallState();
+
+    // Notify UI
+    player.ui.sendData({ type: 'rewind-used' });
+
+    // Regenerate current question
+    this._generateNewQuestion(player);
   }
 
   private _handleCreateTournament(player: Player, data: any): void {
@@ -616,8 +668,9 @@ export class EduFallGameManager {
     this._clearAnswerBlocks(player.id);
     this._clearPlatform();
 
-    // Stop music if no other players active
-    this._stopBackgroundMusicIfNoActive();
+    // Stop game music and start lobby music
+    this._stopBackgroundMusic();
+    this._playLobbyMusic();
 
     // Return to lobby
     this._lobbyManager.returnToLobby(player, playerData.entity);
@@ -656,6 +709,7 @@ export class EduFallGameManager {
     if (this._players.size === 0) {
       this._clearPlatform();
       this._stopBackgroundMusic();
+      this._stopLobbyMusic();
     } else {
       this._stopBackgroundMusicIfNoActive();
     }
@@ -717,14 +771,14 @@ export class EduFallGameManager {
       // Create answer block with Hytopia gradient texture
       const block = new Entity({
         blockTextureUri: 'blocks/Free-fall/hytopia-answer.png',
-        blockHalfExtents: { x: 0.5, y: 0.5, z: 0.5 }, // Single block size
+        blockHalfExtents: { x: 0.5, y: 0.5, z: 0.5 },
         name: `answer_block_${index}`,
         rigidBodyOptions: {
           type: RigidBodyType.FIXED,
           colliders: [{
             shape: ColliderShape.BLOCK,
-            halfExtents: { x: 0.5, y: 0.5, z: 0.5 }, // Single block size
-            isSensor: true, // Allow player to pass through
+            halfExtents: { x: 0.5, y: 0.5, z: 0.5 },
+            isSensor: true,
             onCollision: (other, started) => {
               if (started && other instanceof PlayerEntity && other.player?.id === player.id) {
                 this._handleAnswerCollision(player, answer, isCorrect);
@@ -734,7 +788,12 @@ export class EduFallGameManager {
         }
       });
 
-      block.spawn(this._world, { x, y: blockY, z: 0 });
+      try {
+        block.spawn(this._world, { x, y: blockY, z: 0 });
+        console.log(`[EduFallGameManager] Block ${index} spawned at (${x}, ${blockY}, 0), isSpawned: ${block.isSpawned}`);
+      } catch (error) {
+        console.error(`[EduFallGameManager] Failed to spawn block ${index}:`, error);
+      }
       blocks.push(block);
 
       // Create SceneUI label for the answer
@@ -760,12 +819,25 @@ export class EduFallGameManager {
       answers: allAnswers
     });
 
+    // Try to spawn power-ups above answer blocks (30% chance each)
+    const blockPositions = blocks.map(block => block.position);
+    this._powerUpManager.trySpawnPowerUps(blockPositions);
+
     console.log(`[EduFallGameManager] Spawned ${blocks.length} answer blocks with labels`);
   }
 
   private _handleAnswerCollision(player: Player, answer: string, isCorrect: boolean): void {
     const playerData = this._players.get(player.id);
     if (!playerData || !playerData.state.gameActive || playerData.state.isFinalFall) return;
+
+    // Store rewind data before processing answer (for undo functionality)
+    const currentScore = this._scoringSystem.getSessionStats(player.id)?.score || 0;
+    this._powerUpManager.storeRewindData(
+      player.id,
+      { ...playerData.entity.position },
+      currentScore,
+      playerData.state.questionsAnswered
+    );
 
     if (isCorrect) {
       this._handleCorrectAnswer(player, playerData);
@@ -777,9 +849,22 @@ export class EduFallGameManager {
   private _handleCorrectAnswer(player: Player, playerData: EduFallPlayerData): void {
     console.log(`[EduFallGameManager] Correct answer from ${player.username}`);
 
+    // Check for double points power-up
+    const pointsMultiplier = this._powerUpManager.getPointsMultiplier(player.id);
+    if (pointsMultiplier > 1) {
+      console.log(`[EduFallGameManager] Double points active for ${player.username}!`);
+      player.ui.sendData({ type: 'double-points-used' });
+    }
+
     // Record in scoring system
     const gameDifficulty = this._getGameDifficulty(playerData.state.difficulty);
     const breakdown = this._scoringSystem.recordCorrectAnswer(player.id, gameDifficulty);
+
+    // Apply points multiplier from power-up
+    if (pointsMultiplier > 1) {
+      breakdown.totalPoints *= pointsMultiplier;
+      breakdown.basePoints *= pointsMultiplier;
+    }
 
     // Update state
     playerData.state.questionsAnswered++;
@@ -825,6 +910,16 @@ export class EduFallGameManager {
 
   private _handleWrongAnswer(player: Player, playerData: EduFallPlayerData): void {
     console.log(`[EduFallGameManager] Wrong answer from ${player.username}`);
+
+    // Check for shield power-up (blocks wrong answer)
+    if (this._powerUpManager.useShield(player.id)) {
+      console.log(`[EduFallGameManager] Shield protected ${player.username} from wrong answer!`);
+      this._playSound(GAME_CONSTANTS.AUDIO_CORRECT, playerData.entity); // Play positive sound
+      player.ui.sendData({ type: 'shield-used' });
+      // Don't record wrong answer, just move to next question
+      this._scheduleNextQuestion(player, playerData);
+      return;
+    }
 
     // Record in scoring system
     this._scoringSystem.recordWrongAnswer(player.id);
@@ -969,6 +1064,10 @@ export class EduFallGameManager {
     const playerData = this._players.get(player.id);
     if (!playerData || !playerData.state.isFinalFall) return;
 
+    // IMPORTANT: Set isFinalFall to false immediately to prevent multiple landing triggers
+    // This must happen before any async operations
+    playerData.state.isFinalFall = false;
+
     console.log(`[EduFallGameManager] Player ${player.username} landed!`);
 
     // Set landed state
@@ -1073,6 +1172,10 @@ export class EduFallGameManager {
 
     playerData.state.gameActive = false;
 
+    // Clear power-ups
+    this._powerUpManager.clearPlayerPowerUps(player.id);
+    this._powerUpManager.clearPowerUps();
+
     // Schedule return to lobby after showing results
     if (!disconnected) {
       setTimeout(() => {
@@ -1101,8 +1204,13 @@ export class EduFallGameManager {
     this._clearAnswerBlocks(player.id);
     this._clearPlatform();
 
-    // Stop music if no active players
-    this._stopBackgroundMusicIfNoActive();
+    // Clear player's power-ups
+    this._powerUpManager.clearPlayerPowerUps(player.id);
+    this._powerUpManager.clearPowerUps();
+
+    // Stop game music and start lobby music
+    this._stopBackgroundMusic();
+    this._playLobbyMusic();
 
     // Show start screen
     player.ui.sendData({ type: 'show-start' });
@@ -1178,6 +1286,9 @@ export class EduFallGameManager {
   private _playBackgroundMusic(): void {
     if (this._isMusicPlaying || !this._backgroundMusic) return;
 
+    // Stop lobby music first
+    this._stopLobbyMusic();
+
     setTimeout(() => {
       if (this._backgroundMusic && !this._isMusicPlaying) {
         try {
@@ -1188,7 +1299,7 @@ export class EduFallGameManager {
           console.error('[EduFallGameManager] Error playing background music:', error);
         }
       }
-    }, 1000); // Reduced delay from 15s to 1s
+    }, 500);
   }
 
   private _stopBackgroundMusic(): void {
@@ -1207,6 +1318,37 @@ export class EduFallGameManager {
     const hasActivePlayer = Array.from(this._players.values()).some(p => p.state.gameActive);
     if (!hasActivePlayer) {
       this._stopBackgroundMusic();
+    }
+  }
+
+  private _playLobbyMusic(): void {
+    if (this._isLobbyMusicPlaying || !this._lobbyMusic) return;
+
+    // Stop game music first if playing
+    this._stopBackgroundMusic();
+
+    setTimeout(() => {
+      if (this._lobbyMusic && !this._isLobbyMusicPlaying) {
+        try {
+          this._lobbyMusic.play(this._world);
+          this._isLobbyMusicPlaying = true;
+          console.log('[EduFallGameManager] Lobby music started');
+        } catch (error) {
+          console.error('[EduFallGameManager] Error playing lobby music:', error);
+        }
+      }
+    }, 500);
+  }
+
+  private _stopLobbyMusic(): void {
+    if (!this._isLobbyMusicPlaying || !this._lobbyMusic) return;
+
+    try {
+      this._lobbyMusic.pause();
+      this._isLobbyMusicPlaying = false;
+      console.log('[EduFallGameManager] Lobby music stopped');
+    } catch (error) {
+      console.error('[EduFallGameManager] Error stopping lobby music:', error);
     }
   }
 }

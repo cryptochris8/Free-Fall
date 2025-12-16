@@ -407,17 +407,7 @@
         finalScoreElement.textContent = scoreText;
       }
       showScreen(endScreen);
-
-      // Play Game Over Sound
-      try {
-        const gameOverSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/game-over-voice.mp3';
-        const gameOverSound = new Audio(gameOverSoundPath);
-        gameOverSound.play().catch(error => {
-          console.warn('Could not autoplay game over sound:', error);
-        });
-      } catch (error) {
-        console.error('Error creating or playing game over sound:', error);
-      }
+      // Game over sound is played server-side
     }
   });
 

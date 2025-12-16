@@ -325,9 +325,11 @@ export const GAME_CONSTANTS = {
 
   UI_PATH: 'ui/index.html',
   AUDIO_MUSIC: 'audio/music/Free-fall.mp3',
+  AUDIO_LOBBY_MUSIC: 'audio/music/hytopia-menu.mp3',
   AUDIO_CORRECT: 'audio/sfx/correct.mp3',
   AUDIO_WRONG: 'audio/sfx/wrong.mp3',
   AUDIO_LANDING: 'audio/sfx/landing.mp3',
+  AUDIO_POWERUP: 'audio/sfx/entity/slime/slime-small-hit.mp3',
   AUDIO_OPENING_VOICE: 'audio/sfx/ui/opening-voice.mp3',
   AUDIO_GAME_OVER_VOICE: 'audio/sfx/ui/game-over-voice.mp3'
 } as const;

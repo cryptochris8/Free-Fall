@@ -49,12 +49,28 @@ and also configure additional buttons for mobile compatibility.
       <span id="problem-num2">?</span>
     </div>
   </div>
-  
+
+  <!-- Live Score Display -->
+  <div id="live-score-display" class="live-score-display">
+    <div class="score-row">
+      <span class="score-label">Score:</span>
+      <span id="live-score" class="score-value">0</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Streak:</span>
+      <span id="live-streak" class="streak-value">0</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">Progress:</span>
+      <span id="live-progress" class="progress-value">0/10</span>
+    </div>
+  </div>
+
   <!-- Power-up Indicators -->
   <div id="powerup-indicators" class="powerup-indicators">
     <!-- Power-ups will be dynamically added here -->
   </div>
-  
+
   <!-- Rewind Power-up Button -->
   <div id="rewind-button" class="rewind-button" style="display: none;">
     <span class="rewind-icon">⏪</span>
@@ -615,6 +631,60 @@ and also configure additional buttons for mobile compatibility.
   #problem-container {
     font-size: 48px;
     font-weight: bold;
+  }
+
+  /* Live Score Display */
+  .live-score-display {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    border-radius: 10px;
+    padding: 10px 15px;
+    min-width: 120px;
+    z-index: 100;
+  }
+
+  .live-score-display .score-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 3px 0;
+  }
+
+  .live-score-display .score-label {
+    color: #aaa;
+    font-size: 14px;
+    margin-right: 10px;
+  }
+
+  .live-score-display .score-value {
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .live-score-display .streak-value {
+    color: #ff6b6b;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .live-score-display .progress-value {
+    color: #4ecdc4;
+    font-size: 14px;
+  }
+
+  /* Streak animation */
+  .live-score-display .streak-value.hot {
+    color: #ff4500;
+    text-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+    animation: pulse 0.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
   }
 
   #problem-container span {
@@ -2070,22 +2140,8 @@ and also configure additional buttons for mobile compatibility.
 
     // Event listener for the Play Again button
     playAgainButton.addEventListener('click', () => {
-      // console.log('[UI DEBUG] Play Again button clicked!'); // Added log
-      // console.log('[UI DEBUG] Sending restart-game data to server...'); // Added log
       hytopia.sendData({ type: 'restart-game' });
       showScreen(lobbyScreen);
-
-      // Play Game Over Sound (Consider if this sound should play on restart or only on game-over)
-      try {
-        const gameOverSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/game-over-voice.mp3';
-        // console.log('[UI DEBUG] Attempting to play game over sound on restart:', gameOverSoundPath); // Modified log
-        const gameOverSound = new Audio(gameOverSoundPath);
-        gameOverSound.play().catch(error => {
-          console.warn('Could not autoplay game over sound:', error); // Keep basic warning
-        });
-      } catch (error) {
-        console.error('Error creating or playing game over sound:', error); // Keep basic error
-      }
     });
 
     // --- Hytopia Data Listener ---
@@ -2105,21 +2161,82 @@ and also configure additional buttons for mobile compatibility.
         problemNum2.textContent = data.num2;
       }
 
-      if (data.type === 'game-over') {
-        finalScoreDisplay.textContent = `${data.score} / ${data.maxQuestions}`;
-        showScreen(endScreen);
+      // Live score update during gameplay
+      if (data.type === 'score-update') {
+        const liveScore = document.getElementById('live-score');
+        const liveStreak = document.getElementById('live-streak');
+        const liveProgress = document.getElementById('live-progress');
 
-        // Play Game Over Sound
-        try {
-          const gameOverSoundPath = '{{CDN_ASSETS_URL}}/audio/sfx/ui/game-over-voice.mp3';
-          // console.log('[UI DEBUG] Attempting to play game over sound (on game-over event):');
-          const gameOverSound = new Audio(gameOverSoundPath);
-          gameOverSound.play().catch(error => {
-            console.warn('Could not autoplay game over sound:', error); // Keep basic warning
-          });
-        } catch (error) {
-          console.error('Error creating or playing game over sound:', error); // Keep basic error
+        if (liveScore && data.stats) {
+          liveScore.textContent = data.stats.score || 0;
         }
+        if (liveStreak && data.stats) {
+          liveStreak.textContent = data.stats.streak || 0;
+          // Add hot streak animation for streaks >= 3
+          if (data.stats.streak >= 3) {
+            liveStreak.classList.add('hot');
+          } else {
+            liveStreak.classList.remove('hot');
+          }
+        }
+        if (liveProgress && data.stats) {
+          const answered = (data.stats.correct || 0) + (data.stats.wrong || 0);
+          liveProgress.textContent = `${answered}/10`;
+        }
+
+        // Show bonus feedback if applicable
+        if (data.breakdown?.bonusType) {
+          console.log(`[UI] Bonus: ${data.breakdown.bonusType} - ${data.breakdown.totalPoints} pts`);
+        }
+      }
+
+      // Handle wrong answer (update progress)
+      if (data.type === 'wrong-answer') {
+        const liveStreak = document.getElementById('live-streak');
+        const liveProgress = document.getElementById('live-progress');
+
+        if (liveStreak) {
+          liveStreak.textContent = '0';
+          liveStreak.classList.remove('hot');
+        }
+        if (liveProgress && data.stats) {
+          const answered = (data.stats.correct || 0) + (data.stats.wrong || 0);
+          liveProgress.textContent = `${answered}/10`;
+        }
+      }
+
+      // Reset live score display when game starts
+      if (data.type === 'game-started') {
+        const liveScore = document.getElementById('live-score');
+        const liveStreak = document.getElementById('live-streak');
+        const liveProgress = document.getElementById('live-progress');
+
+        if (liveScore) liveScore.textContent = '0';
+        if (liveStreak) {
+          liveStreak.textContent = '0';
+          liveStreak.classList.remove('hot');
+        }
+        if (liveProgress) liveProgress.textContent = '0/10';
+      }
+
+      if (data.type === 'game-over') {
+        // Handle both old format (data.score) and new format (data.summary.totalScore)
+        const score = data.summary?.totalScore ?? data.score ?? 0;
+        const correct = data.summary?.correctAnswers ?? data.correct ?? 0;
+        const total = data.summary?.correctAnswers + data.summary?.wrongAnswers ?? data.maxQuestions ?? 10;
+        const grade = data.summary?.grade ?? '';
+
+        // Display score with grade if available
+        if (grade && grade !== 'P') {
+          finalScoreDisplay.textContent = `${score} pts (Grade: ${grade})`;
+        } else if (data.isPractice) {
+          finalScoreDisplay.textContent = `Practice: ${correct} / ${total} correct`;
+        } else {
+          finalScoreDisplay.textContent = `${score} pts - ${correct} / ${total} correct`;
+        }
+
+        showScreen(endScreen);
+        // Game over sound is played server-side
       }
 
       // Handle power-up events
