@@ -260,9 +260,10 @@ export class LobbyManager {
           colliders: [{
             shape: ColliderShape.BLOCK,
             halfExtents: BLOCK_HALF_EXTENTS,
+            isSensor: true, // Player falls through but collision is still detected
             onCollision: (other, started) => {
               if (started && other instanceof PlayerEntity && other.player?.id === player.id) {
-                console.log(`[LobbyManager] Player collided with ${modeInfo.mode} block!`);
+                console.log(`[LobbyManager] Player fell through ${modeInfo.mode} block!`);
                 this._handleModeSelection(player, playerEntity, modeInfo.mode);
               }
             }
@@ -353,6 +354,7 @@ export class LobbyManager {
           colliders: [{
             shape: ColliderShape.BLOCK,
             halfExtents: BLOCK_HALF_EXTENTS,
+            isSensor: true, // Player falls through but collision is still detected
             onCollision: (other, started) => {
               if (started && other instanceof PlayerEntity && other.player?.id === player.id) {
                 this._handleSubjectSelection(player, playerEntity, subjectInfo.subject);
@@ -427,6 +429,7 @@ export class LobbyManager {
           colliders: [{
             shape: ColliderShape.BLOCK,
             halfExtents: BLOCK_HALF_EXTENTS,
+            isSensor: true, // Player falls through but collision is still detected
             onCollision: (other, started) => {
               if (started && other instanceof PlayerEntity && other.player?.id === player.id) {
                 this._handleDifficultySelection(player, playerEntity, diffInfo.difficulty);
